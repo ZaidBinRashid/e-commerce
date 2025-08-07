@@ -451,7 +451,7 @@ export default function CircularGallery({
   textColor = "#ffffff",
   borderRadius = 0.05,
   font = "bolder 30px Figtree ",
-  scrollSpeed = 2,
+  scrollSpeed = 4,
   scrollEase = 0.05,
 }) {
   const containerRef = useRef(null);

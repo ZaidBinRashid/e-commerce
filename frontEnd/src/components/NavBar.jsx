@@ -93,13 +93,13 @@ const Navbar = () => {
                 {/* Profile Icon */}
                 <button className="w-10 h-10">
               
-              <img src="/user.png" alt="user" />
+              <img src="./icons/user.png" alt="user" />
             </button>
 
                 {/* Cart Icon with Badge */}
                 <button className="relative w-10 h-10">
               
-              <img src="shopping-bag.png" alt="cart" />
+              <img src="./icons/shopping-bag.png" alt="cart" />
               <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 4
               </span>
