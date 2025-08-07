@@ -1,130 +1,118 @@
-import { Link } from "react-router-dom";
-import React, { useState } from "react";
-import { Menu, X, ShoppingCart, User, Search } from "lucide-react";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   return (
-    <nav className="bg-zinc-800 p-8 shadow-sm sticky top-0 z-50 text-2xl font-mono">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Left Navigation Links - Desktop */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-white">
-              HOME
+    
+    <nav className="px-4 py-4  m-2 rounded-2xl" style={{backgroundColor:"#A47DAB"}}>
+      <div className="max-w-auto mx-auto">
+        <div className="flex items-center justify-between ">
+          {/* Logo */}
+          <div >
+          <img src="./icons/logo.png" alt="logo" className='h-14 rounded-full' />
+            
+            
+          </div>
+
+          {/* Desktop Navigation Menu */}
+          <div className="hidden md:flex space-x-16">
+            <Link to="/" className="text-black hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
+              Home
             </Link>
-            <Link to="/Shop" className="text-white">
-              SHOP
+            <Link to="/shop" className="text-black hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
+              Shop
+            </Link>
+            <Link to="/collection" className="text-black hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
+              Collection
+            </Link>
+            <Link to="/about" className="text-black hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
+              About
             </Link>
           </div>
 
-          {/* Logo - Center */}
-          <div>
-            <Link to="/" className="flex items-center">
-              <img className="h-30" src="/logo.png" alt="logo" />
-            </Link>
-          </div>
-
-          {/* Right Navigation Links - Desktop */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/about" className="text-white">
-              ABOUT
-            </Link>
-            <Link to="/ContactUs" className="text-white">
-              CONTACT
-            </Link>
-
-            <div className="flex items-center space-x-4">
-              <button className="text-white">
-                <Search className="w-8 h-8" />
-              </button>
-              <button className="text-white">
-                <User className="w-8 h-8" />
-              </button>
-              <button className="text-white relative">
-                <ShoppingCart className="w-8 h-8" />
-                <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  3
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile menu button and icons */}
-          <div className="md:hidden flex items-center space-x-4">
-            <button className="text-white">
-              <Search className="w-5 h-5" />
+          {/* Desktop Right Icons */}
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Profile Icon */}
+            <button className="w-10 h-10">
+              
+              <img src="./icons/user.png" alt="user" />
             </button>
-            <button className="text-white relative">
-              <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                3
+
+            {/* Cart Icon with Badge */}
+            <button className="relative w-10 h-10">
+              
+              <img src="./icons/shopping-bag.png" alt="cart" />
+              <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                4
               </span>
             </button>
-            <button onClick={toggleMenu} className="text-white">
-              {isMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button
+              onClick={toggleMobileMenu}
+              className="w-10 h-10 bg-black rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors duration-200"
+            >
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
             </button>
           </div>
         </div>
 
-        {/* Mobile menu */}
-        <div
-          className={`md:hidden transition-all duration-300 ease-in-out ${
-            isMenuOpen
-              ? "max-h-96 opacity-100 pb-6"
-              : "max-h-0 opacity-0 overflow-hidden"
-          }`}
-        >
-          <div className="mt-8 pt-4 pb-2 space-y-4 border-t border-gray-100">
-            <Link
-              to="/"
-              className="block text-white font-medium py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              HOME
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden mt-4 pb-4">
+            <div className="flex flex-col space-y-3">
+              <Link to="/" className="text-black hover:text-gray-600 font-medium text-xl transition-colors duration-200">
+              Home
             </Link>
-            <Link
-              to="Shop"
-              className="block text-white font-medium py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              SHOP
+            <Link to="/shop" className="text-black hover:text-gray-600 font-medium text-xl transition-colors duration-200">
+              Shop
             </Link>
-            <Link
-              to="About"
-              className="block text-white font-medium py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              ABOUT
+            <Link to="/about" className="text-black hover:text-gray-600 font-medium text-xl transition-colors duration-200">
+              About
             </Link>
-            <Link
-              to="ContactUs"
-              className="block text-white font-medium py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              CONTACT
+            <Link to="/contactus" className="text-black hover:text-gray-600 font-medium text-xl transition-colors duration-200">
+              Contact
             </Link>
+              
+              {/* Mobile Icons Row */}
+              <div className="flex items-center justify-center space-x-4 pt-4">
+                {/* Profile Icon */}
+                <button className="w-10 h-10">
+              
+              <img src="/user.png" alt="user" />
+            </button>
 
-            <div className="pt-4 border-t border-gray-100">
-              <button className="flex items-center space-x-2 text-white py-2">
-                <User className="w-5 h-5" />
-                <span>ACCOUNT</span>
-              </button>
+                {/* Cart Icon with Badge */}
+                <button className="relative w-10 h-10">
+              
+              <img src="shopping-bag.png" alt="cart" />
+              <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                4
+              </span>
+            </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </nav>
+
   );
 };
 
 export default Navbar;
+
