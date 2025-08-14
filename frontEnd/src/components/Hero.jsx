@@ -186,7 +186,7 @@ const Hero = () => {
           {/* Right - Card with watch image */}
           <div className="flex-1 flex justify-center items-center">
             <div
-              className="relative w-96 h-96"
+              className="relative lg:w-96 lg:h-96 md:w-70 md:h-70 sm:w-40 sm:h-40"
               style={{
                 transform: `
                   perspective(1000px) 
