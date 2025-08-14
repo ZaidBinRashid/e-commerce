@@ -19,7 +19,7 @@ const routes = [
         element: (
           <>
             <Hero />
-            <Gallery />
+            {/* <Gallery /> */}
           </>
         ),
       },

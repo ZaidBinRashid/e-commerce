@@ -1,64 +1,116 @@
 import { Link } from "react-router-dom";
 
-const Footer = () => {
+import React from "react";
+import {
+  FaReddit,
+  FaWhatsapp,
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+} from "react-icons/fa";
+
+export default function Footer() {
   return (
-    <footer className="m-2 rounded-2xl pt-4" style={{backgroundColor:"#6A6B4E"}}>
-      <div className="container mx-auto px-4">
-        {/* Social Media Icons Row */}
-        <div className="flex justify-center items-center pt-4 pb-4 ">
-          <div className="flex items-center space-x-4">
-            {/* Reddit */}
-            <a href="#" className="w-10 h-10">
-                <img src="./icons/reddit.png" alt="reddit" />
+    <footer className="bg-gray-900 text-gray-300 py-8 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Company Info */}
+        <div>
+          <h2 className="text-2xl font-bold text-white">HeritageWatchesCo</h2>
+          <p className="mt-2 text-sm text-gray-400">
+            Classic watches, restored to their original glory.
+          </p>
+        </div>
+
+        {/* Navigation Links */}
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
+          <ul className="space-y-2 text-sm">
+            <li>
+              <Link to="/" className="hover:text-white">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="hover:text-white">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link to="/shop" className="hover:text-white">
+                Shop
+              </Link>
+            </li>
+            <li>
+              <Link to="/collection" className="hover:text-white">
+                Collection
+              </Link>
+            </li>
+            <li>
+              <Link to="/account" className="hover:text-white">
+                Account
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/cart" className="hover:text-white">
+                Cart
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Social Links */}
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4">Follow Us</h3>
+          <div className="flex space-x-4">
+            <a
+              href="https://reddit.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white text-2xl"
+            >
+              <FaReddit />
             </a>
-            
-            {/* Facebook */}
-            <a href="#" className="w-10 h-10">
-                <img src="./icons/fb.png" alt="reddit" />
+            <a
+              href="https://wa.me/1234567890"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white text-2xl"
+            >
+              <FaWhatsapp />
             </a>
-            
-            {/* WhatsApp */}
-            <a href="#" className="w-10 h-10">
-                <img src="./icons/whatsapp.png" alt="reddit" />
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white text-2xl"
+            >
+              <FaFacebookF />
             </a>
-            
-            {/* Twitter/X */}
-            <a href="#" className="w-10 h-10">
-                <img src="./icons/twitter.png" alt="reddit" />
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white text-2xl"
+            >
+              <FaTwitter />
             </a>
-            
-            {/* Instagram */}
-            <a href="#" className="w-10 h-10">
-                <img src="./icons/instagram.png" alt="reddit" />
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white text-2xl"
+            >
+              <FaInstagram />
             </a>
           </div>
         </div>
-        
-        {/* Navigation Menu */}
-        <nav className="pb-4">
-          <div className="flex justify-center items-center space-x-8 ">
-            <Link to="/" className="text-black hover:text-white transition-colors font-bold text-xl">
-              Home
-            </Link>
-            <Link to="/shop" className="text-black hover:text-white transition-colors font-bold text-xl">
-              Shop
-            </Link>
-            <Link to="/about" className="text-black hover:text-white transition-colors font-bold text-xl">
-              About
-            </Link>
-            <Link to="/collection" className="text-black hover:text-white transition-colors font-bold text-xl">
-              Collection
-            </Link>
-          </div>
-        </nav>
-        
-        {/* Copyright */}
-        {/* <div className="text-center py-2 text-xs text-black" style={{backgroundColor:"#82AB70"}}>
-          Copyright © 2025
-        </div> */}
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="mt-8 border-t border-gray-700 pt-4 text-center text-sm text-gray-500">
+        © {new Date().getFullYear()} HeritageWatchesCo. All rights reserved.
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

@@ -1,15 +1,16 @@
+
+
 import CircularGallery from "./UI/CircularGallery";
 
 export default function Gallery() {
   return (
     <>
-      <div
+      <div 
         style={{
           height: "600px",
           position: "relative",
-          backgroundColor: "#692475",
-          borderRadius: "16px",
-          margin: "8px",
+          backgroundColor: "#2B2B2B",
+
         }}
       >
         <CircularGallery

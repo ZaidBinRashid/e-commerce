@@ -1,120 +1,295 @@
-
-
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import React from 'react';
 
-const HeroSection = () => {
+const Hero = () => {
+  const [scrollY, setScrollY] = useState(0);
+  const [activeProduct, setActiveProduct] = useState(0);
+  const containerRef = useRef(null);
+
+  const products = [
+    {
+      name: 'Seiko',
+      accent: 'hsl(142 71% 45%)',
+      tagline: 'Innovation in every tick',
+      description: 'Japanese precision timepieces blending cutting-edge technology with timeless design.',
+      bgPattern: 'radial-gradient(circle at 20% 30%, rgba(52, 211, 153, 0.25) 0%, transparent 50%)',
+      image: './watches/seiko.jpeg',
+    },
+    {
+      name: 'Citizen',
+      accent: 'hsl(217 91% 60%)',
+      tagline: 'Powered by light, crafted for life',
+      description: 'Eco-Drive watches that harness light to deliver sustainable, reliable performance with elegant style.',
+      bgPattern: 'radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.28) 0%, transparent 55%)',
+      image: './watches/citizen.jpeg',
+    },
+    {
+      name: 'HMT',
+      accent: 'hsl(0 84% 60%)',
+      tagline: 'The timeless Indian classic',
+      description: 'Heritage mechanical watches known for durability, simplicity, and nostalgic charm.',
+      bgPattern: 'radial-gradient(circle at 60% 70%, rgba(239, 68, 68, 0.28) 0%, transparent 55%)',
+      image: './watches/Hmt.jpeg',
+    },
+    {
+      name: 'HMT',
+      accent: 'hsl(25 95% 53%)',
+      tagline: 'The timeless Indian classic',
+      description: 'Heritage mechanical watches known for durability, simplicity, and nostalgic charm.',
+      bgPattern: 'radial-gradient(circle at 40% 80%, rgba(245, 158, 11, 0.28) 0%, transparent 55%)',
+      image: './watches/Hmt.jpeg',
+    },
+    {
+      name: 'Audemars Piguet Royal Oak',
+      accent: 'hsl(262 83% 58%)',
+      tagline: 'Defining Icons',
+      description: 'Distinctive design with octagonal bezel.',
+      bgPattern: 'radial-gradient(circle at 90% 10%, rgba(168, 85, 247, 0.28) 0%, transparent 55%)',
+      image: './HMTW/Hmt5.jpeg',
+    },
+  ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const containerHeight = rect.height;
+        const windowHeight = window.innerHeight;
+        const scrollProgress = Math.max(0, Math.min(1, -rect.top / (containerHeight - windowHeight)));
+        setScrollY(scrollProgress);
+
+        const productProgress = scrollProgress * (products.length - 1);
+        const newActiveProduct = Math.floor(productProgress);
+        setActiveProduct(Math.max(0, Math.min(newActiveProduct, products.length - 1)));
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [products.length]);
+
+  const currentProduct = products[activeProduct] || products[0];
+  const nextProduct = products[Math.min(activeProduct + 1, products.length - 1)];
+  const sectionProgress = (scrollY * (products.length - 1)) % 1;
+  const transitionProgress = Math.max(0, (sectionProgress - 0.7) / 0.3);
+
   return (
-    <section className="min-h-screen relative overflow-hidden rounded-2xl m-2" style={{backgroundColor:"#82AB70"}}>
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-slate-600 to-slate-800 rounded-full blur-3xl transform translate-x-1/2 translate-y-1/2"></div>
-      </div>
+    <div ref={containerRef} className="relative h-[600vh] bg-black overflow-hidden ">
+      <div className="fixed inset-0 flex items-center justify-center ">
+        {/* Animated background */}
+        <div
+          className="absolute inset-0 transition-all duration-700 ease-out"
+          style={{ background: currentProduct.bgPattern }}
+        />
+        {transitionProgress > 0 && (
+          <div
+            className="absolute inset-0 transition-opacity duration-500"
+            style={{
+              backgroundImage: nextProduct.bgPattern,
+              opacity: transitionProgress,
+            }}
+          />
+        )}
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen py-16 lg:py-20">
-          
-          {/* Left Content */}
-          <div className="flex-1 text-center lg:text-left mb-12 lg:mb-0 lg:pr-12">
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-black leading-tight mb-6 animate-fade-in-up">
-              <span className="block">Precision</span>
-              <span className="block bg-gradient-to-r from-fuchsia-700 via-fuchsia-600 to-fuchsia-600 bg-clip-text text-transparent">
-                Redefined
-              </span>
-            </h1>
+        {/* Floating particles */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(30)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full opacity-20"
+              style={{
+                width: `${4 + Math.random() * 8}px`,
+                height: `${4 + Math.random() * 8}px`,
+                backgroundColor: currentProduct.accent,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                transform: `
+                  translateY(${scrollY * (100 + Math.random() * 200)}px) 
+                  translateX(${Math.sin(scrollY * Math.PI * 4 + i) * 50}px)
+                  scale(${0.5 + Math.sin(scrollY * Math.PI * 8 + i) * 0.5})
+                `,
+                transition: 'background-color 0.7s ease-out',
+              }}
+            />
+          ))}
+        </div>
 
-            {/* Subheadline */}
-            <p className="text-lg  sm:text-xl lg:text-2xl text-white mb-8 font-medium leading-relaxed animate-fade-in-up animation-delay-200">
-              Timeless craftsmanship. Redefining elegance.
-            </p>
-
-            {/* Description */}
-            <p className="text-base font-bold sm:text-lg text-white mb-10 max-w-2xl mx-auto lg:mx-0 animate-fade-in-up animation-delay-400">
-              Discover our exclusive collection of luxury timepieces, where Swiss precision meets contemporary design. Each watch tells a story of excellence.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up animation-delay-600">
-              <Link to="/shop">
-              <button className="group px-8 py-4 bg-slate-900 text-white font-semibold rounded-full hover:bg-slate-800 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                <span className="flex items-center justify-center">
-                  Shop Now
-                  <svg className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
+        <div className="relative z-10 max-w-7xl  mx-auto px-6 flex items-center justify-between w-full pb-24">
+          {/* Left - text */}
+          <div className="flex-1 text-white space-y-8">
+            <div
+              className="transform transition-all duration-700 ease-out"
+              style={{
+                transform: `
+                  translateX(${-sectionProgress * 100}px) 
+                  translateY(${Math.sin(scrollY * Math.PI * 2) * 20}px)
+                  scale(${1 + sectionProgress * 0.05})
+                `,
+              }}
+            >
+              <h1 className="text-7xl font-black mb-4 tracking-tight">
+                <span
+                  className="block text-white/90 text-2xl font-light mb-2 transition-all duration-500"
+                  style={{
+                    transform: `translateY(${-sectionProgress * 30}px)`,
+                    opacity: 1 - transitionProgress * 0.5,
+                  }}
+                >
+                  {currentProduct.tagline}
                 </span>
-              </button>
-              </Link>
-            <Link to="/collection">
-              <button className="px-8 py-4 border-2 bg-green-800 border-slate-300 text-white font-semibold rounded-full hover:border-slate-900 hover:text-slate-900 transform hover:scale-105 transition-all duration-300">
-                View Collection
-              </button>
-              </Link>
+                <span
+                  className="block transition-all duration-700"
+                  style={{
+                    transform: `translateX(${sectionProgress * 50}px) rotateY(${sectionProgress * 10}deg)`,
+                  }}
+                >
+                  {currentProduct.name}
+                </span>
+              </h1>
+
+              <p
+                className="text-xl text-white/80 max-w-md leading-relaxed transition-all duration-500"
+                style={{
+                  transform: `translateY(${sectionProgress * 40}px)`,
+                  opacity: 1 - transitionProgress * 0.7,
+                }}
+              >
+                {currentProduct.description}
+              </p>
             </div>
 
-            {/* Stats */}
-            {/* <div className="flex flex-wrap justify-center lg:justify-start gap-8 mt-12 animate-fade-in-up animation-delay-800">
-              <div className="text-center lg:text-left">
-                <div className="text-2xl font-bold text-black">50+</div>
-                <div className="text-sm text-white">Premium Brands</div>
-              </div>
-              <div className="text-center lg:text-left">
-                <div className="text-2xl font-bold text-black">25 Years</div>
-                <div className="text-sm text-white">Experience</div>
-              </div>
-              <div className="text-center lg:text-left">
-                <div className="text-2xl font-bold text-black">10K+</div>
-                <div className="text-sm text-white">Happy Customers</div>
-              </div>
-            </div> */}
+            <div
+              className="transform transition-all duration-700 ease-out"
+              style={{
+                transform: `
+                  translateY(${sectionProgress * 60}px) 
+                  scale(${1 - sectionProgress * 0.1})
+                `,
+                opacity: 1 - transitionProgress * 0.8,
+              }}
+            >
+              <Link
+                to="/collection"
+                className="group relative px-8 py-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-white font-semibold text-lg hover:bg-white/20 transition-all duration-300 overflow-hidden"
+                style={{ borderColor: `color-mix(in oklab, ${currentProduct.accent} 30%, transparent)` }}
+              >
+                <span className="relative z-10">Discover More</span>
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+                  style={{ background: `linear-gradient(45deg, ${currentProduct.accent}, transparent)` }}
+                />
+              </Link>
+            </div>
           </div>
 
-          {/* Right Image */}
-          <div className="flex-1 relative max-w-lg mx-auto lg:max-w-none h-1/2">
-            <div className="relative animate-fade-in-right animation-delay-300">
-              {/* Watch Image Container */}
-              <div className="relative z-10 transform hover:scale-105 transition-transform duration-500">
+          {/* Right - Card with watch image */}
+          <div className="flex-1 flex justify-center items-center">
+            <div
+              className="relative w-96 h-96"
+              style={{
+                transform: `
+                  perspective(1000px) 
+                  rotateY(${scrollY * 720 + sectionProgress * 180}deg) 
+                  rotateX(${Math.sin(scrollY * Math.PI * 4) * 10}deg)
+                  rotateZ(${Math.cos(scrollY * Math.PI * 3) * 2}deg)
+                  scale(${1 + Math.sin(scrollY * Math.PI * 6) * 0.05})
+                  translateZ(${sectionProgress * 60}px)
+                `,
+                transition: 'all 0.1s ease-out',
+              }}
+            >
+              <div className="relative w-full h-full rounded-3xl shadow-2xl overflow-hidden border border-white/10 bg-card">
+                {/* subtle highlight */}
+                <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
+                {/* watch image */}
                 <img
-                  src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80"
-                  alt="Luxury Watch"
-                  className="w-full h-auto rounded-2xl shadow-2xl"
+                  src={currentProduct.image}
+                  alt={`${currentProduct.name} watch`}
+                  loading="lazy"
+                  className="absolute object-cover inset-0 w-full h-full  drop-shadow-[0_20px_40px_rgba(0,0,0,0.45)] transition-all duration-500"
+                  style={{
+                    transform: `translateY(${Math.sin(scrollY * Math.PI * 6) * 8}px) scale(${1 + sectionProgress * 0.06})`,
+                  }}
                 />
+                {/* accent glow */}
+                <div
+                  className=" opacity-40 transition-all duration-500"
+                  style={{ background: `radial-gradient(40% 40% at 50% 60%, ${currentProduct.accent}, transparent)` }}
+                />
+                {/* brand bar */}
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                  <div className="text-white/90 text-lg font-semibold">{currentProduct.name.split(' ')[0]}</div>
+                  <div
+                    className="h-1 rounded-full"
+                    style={{
+                      width: `${64 + sectionProgress * 32}px`,
+                      backgroundColor: currentProduct.accent,
+                      boxShadow: `0 0 20px ${currentProduct.accent}`,
+                    }}
+                  />
+                </div>
               </div>
 
-              {/* Floating Elements */}
-              <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full opacity-20 animate-pulse"></div>
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-br from-slate-600 to-slate-800 rounded-full opacity-10 animate-pulse animation-delay-1000"></div>
-
-              {/* Decorative Ring */}
-              <div className="absolute inset-0 border-2 border-amber-400 rounded-2xl transform scale-105 opacity-20 animate-ping animation-delay-500"></div>
-            </div>
-
-            {/* Product Info Card */}
-            <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg animate-fade-in-up animation-delay-1000">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">Swiss Movement</p>
-                  <p className="text-xs text-slate-500">Certified Authentic</p>
-                </div>
+              {/* orbiting accents */}
+              <div className="absolute -inset-20 pointer-events-none">
+                {[...Array(10)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute rounded-full transition-all duration-300"
+                    style={{
+                      width: `${6 + Math.sin(scrollY * Math.PI * 8 + i) * 3}px`,
+                      height: `${6 + Math.sin(scrollY * Math.PI * 8 + i) * 3}px`,
+                      backgroundColor: currentProduct.accent,
+                      left: `${50 + Math.cos(scrollY * Math.PI * 6 + i * (Math.PI / 5)) * 45}%`,
+                      top: `${50 + Math.sin(scrollY * Math.PI * 6 + i * (Math.PI / 5)) * 45}%`,
+                      opacity: 0.5 + Math.sin(scrollY * Math.PI * 10 + i) * 0.4,
+                      transform: `scale(${0.3 + Math.sin(scrollY * Math.PI * 12 + i) * 0.6})`,
+                      filter: 'blur(0.2px)',
+                    }}
+                  />
+                ))}
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </div>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 text-center">
+          <div
+            className="mb-2 text-sm font-light transition-all duration-500"
+            style={{ transform: `translateY(${Math.sin(scrollY * Math.PI * 16) * 5}px)` }}
+          >
+            Scroll to explore
+          </div>
+          <div className="w-1 h-16 bg-white/20 rounded-full mx-auto overflow-hidden">
+            <div
+              className="w-full rounded-full transition-all duration-300"
+              style={{
+                height: `${scrollY * 100}%`,
+                backgroundColor: currentProduct.accent,
+                boxShadow: `0 0 10px ${currentProduct.accent}`,
+              }}
+            />
+          </div>
+        </div>
 
-    </section>
-  
+        {/* Watermark */}
+        {/* <div
+          className="absolute top-8 left-8 text-white/40 font-light text-sm transition-all duration-500"
+          style={{ transform: `translateX(${Math.sin(scrollY * Math.PI * 8) * 10}px)` }}
+        >
+          Premium Watch Collection
+        </div> */}
+
+        {/* Counter */}
+        {/* <div className="absolute top-8 right-8 text-white/60 font-mono text-lg">
+          <span style={{ color: currentProduct.accent }}>{String(activeProduct + 1).padStart(2, '0')}</span>
+          <span className="text-white/30"> / 05</span>
+        </div> */}
+      </div>
+    </div>
   );
 };
 
-export default HeroSection;
+export default Hero;

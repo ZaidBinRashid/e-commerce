@@ -1,3 +1,7 @@
+// Installation: npm install ogl
+// Apply the below code in a separate file.
+// Make a gallery component  file to apply it as a separate component.
+
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from "ogl";
 import { useEffect, useRef } from "react";
 
