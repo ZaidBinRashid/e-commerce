@@ -115,144 +115,149 @@ const Hero = () => {
           ))}
         </div>
 
-        <div className="relative z-10 max-w-7xl  mx-auto px-6 flex items-center justify-between w-full pb-24">
-          {/* Left - text */}
-          <div className="flex-1 text-white space-y-8">
-            <div
-              className="transform transition-all duration-700 ease-out"
-              style={{
-                transform: `
-                  translateX(${-sectionProgress * 100}px) 
-                  translateY(${Math.sin(scrollY * Math.PI * 2) * 20}px)
-                  scale(${1 + sectionProgress * 0.05})
-                `,
-              }}
-            >
-              <h1 className="text-7xl font-black mb-4 tracking-tight">
-                <span
-                  className="block text-white/90 text-2xl font-light mb-2 transition-all duration-500"
-                  style={{
-                    transform: `translateY(${-sectionProgress * 30}px)`,
-                    opacity: 1 - transitionProgress * 0.5,
-                  }}
-                >
-                  {currentProduct.tagline}
-                </span>
-                <span
-                  className="block transition-all duration-700"
-                  style={{
-                    transform: `translateX(${sectionProgress * 50}px) rotateY(${sectionProgress * 10}deg)`,
-                  }}
-                >
-                  {currentProduct.name}
-                </span>
-              </h1>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-between w-full pb-12 lg:pb-24 gap-10">
+  {/* Left - text */}
+  <div className="flex-1 text-white space-y-6 sm:space-y-8 text-center lg:text-left">
+    <div
+      className="transform transition-all duration-700 ease-out"
+      style={{
+        transform: `
+          translateX(${-sectionProgress * 100}px) 
+          translateY(${Math.sin(scrollY * Math.PI * 2) * 20}px)
+          scale(${1 + sectionProgress * 0.05})
+        `,
+      }}
+    >
+      <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black mb-4 tracking-tight">
+        <span
+          className="block text-white/90 text-lg sm:text-xl lg:text-2xl font-light mb-2 transition-all duration-500"
+          style={{
+            transform: `translateY(${-sectionProgress * 30}px)`,
+            opacity: 1 - transitionProgress * 0.5,
+          }}
+        >
+          {currentProduct.tagline}
+        </span>
+        <span
+          className="block transition-all duration-700"
+          style={{
+            transform: `translateX(${sectionProgress * 50}px) rotateY(${sectionProgress * 10}deg)`,
+          }}
+        >
+          {currentProduct.name}
+        </span>
+      </h1>
 
-              <p
-                className="text-xl text-white/80 max-w-md leading-relaxed transition-all duration-500"
-                style={{
-                  transform: `translateY(${sectionProgress * 40}px)`,
-                  opacity: 1 - transitionProgress * 0.7,
-                }}
-              >
-                {currentProduct.description}
-              </p>
-            </div>
+      <p
+        className="text-base sm:text-lg lg:text-xl text-white/80 max-w-md mx-auto lg:mx-0 leading-relaxed transition-all duration-500"
+        style={{
+          transform: `translateY(${sectionProgress * 40}px)`,
+          opacity: 1 - transitionProgress * 0.7,
+        }}
+      >
+        {currentProduct.description}
+      </p>
+    </div>
 
-            <div
-              className="transform transition-all duration-700 ease-out"
-              style={{
-                transform: `
-                  translateY(${sectionProgress * 60}px) 
-                  scale(${1 - sectionProgress * 0.1})
-                `,
-                opacity: 1 - transitionProgress * 0.8,
-              }}
-            >
-              <Link
-                to="/collection"
-                className="group relative px-8 py-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-white font-semibold text-lg hover:bg-white/20 transition-all duration-300 overflow-hidden"
-                style={{ borderColor: `color-mix(in oklab, ${currentProduct.accent} 30%, transparent)` }}
-              >
-                <span className="relative z-10">Discover More</span>
-                <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-                  style={{ background: `linear-gradient(45deg, ${currentProduct.accent}, transparent)` }}
-                />
-              </Link>
-            </div>
+    <div
+      className="transform transition-all duration-700 ease-out"
+      style={{
+        transform: `
+          translateY(${sectionProgress * 60}px) 
+          scale(${1 - sectionProgress * 0.1})
+        `,
+        opacity: 1 - transitionProgress * 0.8,
+      }}
+    >
+      <Link
+        to="/collection"
+        className="group relative px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-white font-semibold text-base sm:text-lg hover:bg-white/20 transition-all duration-300 overflow-hidden"
+        style={{
+          borderColor: `color-mix(in oklab, ${currentProduct.accent} 30%, transparent)`,
+        }}
+      >
+        <span className="relative z-10">Discover More</span>
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+          style={{
+            background: `linear-gradient(45deg, ${currentProduct.accent}, transparent)`,
+          }}
+        />
+      </Link>
+    </div>
+  </div>
+
+  {/* Right - Card */}
+  <div className="flex-1 flex justify-center items-center">
+    <div
+      className="relative w-40 h-40 sm:w-60 sm:h-60 lg:w-96 lg:h-96"
+      style={{
+        transform: `
+          perspective(1000px) 
+          rotateY(${scrollY * 720 + sectionProgress * 180}deg) 
+          rotateX(${Math.sin(scrollY * Math.PI * 4) * 10}deg)
+          rotateZ(${Math.cos(scrollY * Math.PI * 3) * 2}deg)
+          scale(${1 + Math.sin(scrollY * Math.PI * 6) * 0.05})
+          translateZ(${sectionProgress * 60}px)
+        `,
+        transition: "all 0.1s ease-out",
+      }}
+    >
+      <div className="relative w-full h-full rounded-3xl shadow-2xl overflow-hidden border border-white/10 bg-card">
+        <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
+        <img
+          src={currentProduct.image}
+          alt={`${currentProduct.name} watch`}
+          loading="lazy"
+          className="absolute object-cover inset-0 w-full h-full drop-shadow-[0_20px_40px_rgba(0,0,0,0.45)] transition-all duration-500"
+          style={{
+            transform: `translateY(${Math.sin(scrollY * Math.PI * 6) * 8}px) scale(${1 + sectionProgress * 0.06})`,
+          }}
+        />
+        <div
+          className="opacity-40 transition-all duration-500"
+          style={{
+            background: `radial-gradient(40% 40% at 50% 60%, ${currentProduct.accent}, transparent)`,
+          }}
+        />
+        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+          <div className="text-white/90 text-sm sm:text-base lg:text-lg font-semibold">
+            {currentProduct.name.split(" ")[0]}
           </div>
-
-          {/* Right - Card with watch image */}
-          <div className="flex-1 flex justify-center items-center">
-            <div
-              className="relative lg:w-96 lg:h-96 md:w-70 md:h-70 sm:w-40 sm:h-40"
-              style={{
-                transform: `
-                  perspective(1000px) 
-                  rotateY(${scrollY * 720 + sectionProgress * 180}deg) 
-                  rotateX(${Math.sin(scrollY * Math.PI * 4) * 10}deg)
-                  rotateZ(${Math.cos(scrollY * Math.PI * 3) * 2}deg)
-                  scale(${1 + Math.sin(scrollY * Math.PI * 6) * 0.05})
-                  translateZ(${sectionProgress * 60}px)
-                `,
-                transition: 'all 0.1s ease-out',
-              }}
-            >
-              <div className="relative w-full h-full rounded-3xl shadow-2xl overflow-hidden border border-white/10 bg-card">
-                {/* subtle highlight */}
-                <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
-                {/* watch image */}
-                <img
-                  src={currentProduct.image}
-                  alt={`${currentProduct.name} watch`}
-                  loading="lazy"
-                  className="absolute object-cover inset-0 w-full h-full  drop-shadow-[0_20px_40px_rgba(0,0,0,0.45)] transition-all duration-500"
-                  style={{
-                    transform: `translateY(${Math.sin(scrollY * Math.PI * 6) * 8}px) scale(${1 + sectionProgress * 0.06})`,
-                  }}
-                />
-                {/* accent glow */}
-                <div
-                  className=" opacity-40 transition-all duration-500"
-                  style={{ background: `radial-gradient(40% 40% at 50% 60%, ${currentProduct.accent}, transparent)` }}
-                />
-                {/* brand bar */}
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                  <div className="text-white/90 text-lg font-semibold">{currentProduct.name.split(' ')[0]}</div>
-                  <div
-                    className="h-1 rounded-full"
-                    style={{
-                      width: `${64 + sectionProgress * 32}px`,
-                      backgroundColor: currentProduct.accent,
-                      boxShadow: `0 0 20px ${currentProduct.accent}`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* orbiting accents */}
-              <div className="absolute -inset-20 pointer-events-none">
-                {[...Array(10)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute rounded-full transition-all duration-300"
-                    style={{
-                      width: `${6 + Math.sin(scrollY * Math.PI * 8 + i) * 3}px`,
-                      height: `${6 + Math.sin(scrollY * Math.PI * 8 + i) * 3}px`,
-                      backgroundColor: currentProduct.accent,
-                      left: `${50 + Math.cos(scrollY * Math.PI * 6 + i * (Math.PI / 5)) * 45}%`,
-                      top: `${50 + Math.sin(scrollY * Math.PI * 6 + i * (Math.PI / 5)) * 45}%`,
-                      opacity: 0.5 + Math.sin(scrollY * Math.PI * 10 + i) * 0.4,
-                      transform: `scale(${0.3 + Math.sin(scrollY * Math.PI * 12 + i) * 0.6})`,
-                      filter: 'blur(0.2px)',
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+          <div
+            className="h-1 rounded-full"
+            style={{
+              width: `${64 + sectionProgress * 32}px`,
+              backgroundColor: currentProduct.accent,
+              boxShadow: `0 0 20px ${currentProduct.accent}`,
+            }}
+          />
         </div>
+      </div>
+
+      {/* Orbiting accents */}
+      <div className="absolute -inset-20 pointer-events-none">
+        {[...Array(10)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full transition-all duration-300"
+            style={{
+              width: `${6 + Math.sin(scrollY * Math.PI * 8 + i) * 3}px`,
+              height: `${6 + Math.sin(scrollY * Math.PI * 8 + i) * 3}px`,
+              backgroundColor: currentProduct.accent,
+              left: `${50 + Math.cos(scrollY * Math.PI * 6 + i * (Math.PI / 5)) * 45}%`,
+              top: `${50 + Math.sin(scrollY * Math.PI * 6 + i * (Math.PI / 5)) * 45}%`,
+              opacity: 0.5 + Math.sin(scrollY * Math.PI * 10 + i) * 0.4,
+              transform: `scale(${0.3 + Math.sin(scrollY * Math.PI * 12 + i) * 0.6})`,
+              filter: "blur(0.2px)",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 text-center">
