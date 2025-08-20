@@ -6,7 +6,10 @@ import Shop from "./components/Shop";
 import Collection from "./components/Collection";
 import Account from "./components/Account";
 import Cart from "./components/Cart";
-import Gallery from "./components/gallery";
+import Signup from "./components/Signup";
+import Login from "./components/Login";
+
+// import Gallery from "./components/gallery";
 
 const routes = [
   {
@@ -43,6 +46,8 @@ const routes = [
         path: "cart",
         element: <Cart />,
       },
+      { path: "signUp", element: <Signup /> },
+      { path: "logIn", element: <Login /> },
     ],
   },
 ];

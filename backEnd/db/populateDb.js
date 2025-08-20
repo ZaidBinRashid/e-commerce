@@ -1,0 +1,34 @@
+import { Client } from "pg";
+import "dotenv/config";
+
+const SQL = `
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,                -- unique user ID
+    username VARCHAR(50) UNIQUE NOT NULL, -- login name
+    email VARCHAR(100) UNIQUE NOT NULL,   -- email
+    password_hash TEXT NOT NULL,          -- hashed password
+    role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')), 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`;
+
+async function main() {
+  console.log("Seeding...");
+
+  const client = new Client({
+    connectionString: process.env.DB_CONSTRING,
+  });
+
+  try {
+    await client.connect();
+    await client.query(SQL);
+    console.log("Users table created (if not exists).");
+  } catch (err) {
+    console.error("Error seeding database:", err);
+  } finally {
+    await client.end();
+    console.log("Connection closed.");
+  }
+}
+
+main();
