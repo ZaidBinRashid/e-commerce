@@ -28,9 +28,9 @@ const Navbar = () => {
             <Link to="/shop" className="text-white hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
               Shop
             </Link>
-            <Link to="/collection" className="text-white hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
+            {/* <Link to="/collection" className="text-white hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
               Collection
-            </Link>
+            </Link> */}
             <Link to="/about" className="text-white hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
               About
             </Link>
@@ -86,9 +86,9 @@ const Navbar = () => {
             <Link to="/about" className="text-white hover:text-gray-600 font-medium text-xl transition-colors duration-200">
               About
             </Link>
-            <Link to="/contactus" className="text-white hover:text-gray-600 font-medium text-xl transition-colors duration-200">
-              Contact
-            </Link>
+            {/* <Link to="/collection" className="text-white hover:text-gray-600 font-medium text-xl transition-colors duration-200">
+              Collection
+            </Link> */}
               
               {/* Mobile Icons Row */}
               <div className="flex items-center justify-center space-x-4 pt-4">

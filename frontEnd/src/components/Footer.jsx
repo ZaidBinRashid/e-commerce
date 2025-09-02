@@ -40,11 +40,11 @@ export default function Footer() {
                 Shop
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/collection" className="hover:text-white">
                 Collection
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link to="/account" className="hover:text-white">
                 Account

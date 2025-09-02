@@ -38,23 +38,24 @@ const Hero = () => {
       image: "./watches/Hmt.jpeg",
     },
     {
-      name: "HMT",
-      accent: "hsl(25 95% 53%)",
-      tagline: "The timeless Indian classic",
-      description:
-        "Heritage mechanical watches known for durability, simplicity, and nostalgic charm.",
-      bgPattern:
-        "radial-gradient(circle at 40% 80%, rgba(245, 158, 11, 0.28) 0%, transparent 55%)",
-      image: "./watches/Hmt.jpeg",
-    },
-    {
-      name: "Audemars Piguet Royal Oak",
+      name: "OMEGA",
       accent: "hsl(262 83% 58%)",
-      tagline: "Defining Icons",
-      description: "Distinctive design with octagonal bezel.",
+      tagline: "Time. Perfected.",
+      description:
+        "Swiss luxury watches famed for precision, innovation, and space-age legacy.",
       bgPattern:
         "radial-gradient(circle at 90% 10%, rgba(168, 85, 247, 0.28) 0%, transparent 55%)",
-      image: "./HMTW/Hmt5.jpeg",
+      image: "./watches/omega.jpg",
+    },
+    {
+      name: "LOBOR",
+      accent: "hsl(25 95% 53%)",
+      tagline: "Elegance for every moment.",
+      description:
+        "Contemporary fashion watches combining modern style with affordable sophistication.",
+      bgPattern:
+        "radial-gradient(circle at 40% 80%, rgba(245, 158, 11, 0.28) 0%, transparent 55%)",
+      image: "./watches/lobor.jpeg",
     },
   ];
 
@@ -190,7 +191,7 @@ const Hero = () => {
               }}
             >
               <Link
-                to="/collection"
+                to="/shop"
                 className="group relative px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-white font-semibold text-base sm:text-lg hover:bg-white/20 transition-all duration-300 overflow-hidden"
                 style={{
                   borderColor: `color-mix(in oklab, ${currentProduct.accent} 30%, transparent)`,
