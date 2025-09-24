@@ -10,6 +10,9 @@ const SQL = `
     role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')), 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
+  
+  UPDATE users SET role = 'admin' WHERE email = 'zaidbinrashid85@gmail.com';
+
 `;
 
 async function main() {

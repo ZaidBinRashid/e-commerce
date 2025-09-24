@@ -45,7 +45,7 @@ function Signup() {
 
       if (res.ok) {
         alert("Signup successful!");
-        navigate("/home");
+        navigate("/login");
       } else {
         const err = await res.json();
         alert(err.message || "Signup failed");
@@ -76,6 +76,7 @@ function Signup() {
             type="text"
             placeholder="Username"
             value={username}
+            autoComplete="username"
             onChange={(e) => setUsername(e.target.value)}
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -89,6 +90,7 @@ function Signup() {
             type="email"
             placeholder="Email"
             value={email}
+            autoComplete="email"
             onChange={(e) => setEmail(e.target.value)}
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />

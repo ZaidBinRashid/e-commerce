@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import pool from "../db/pool.js";
 
-
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // ------------------ SIGNUP ------------------
@@ -41,12 +40,11 @@ export const login = async (req, res) => {
 
     // Compare entered password with hashed password in DB
     const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch)
-      return res.status(400).json({ error: "Invalid credentials" });
+    if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
     // Create JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -65,7 +63,18 @@ export const login = async (req, res) => {
   }
 };
 
+// ------------------ LOGOUT ------------------
+export const logOut = async (req, res) => {
+  res.clearCookie("token");
+  res.redirect("/login");
+}
+
 // ------------------ PROFILE ------------------
 export const profile = async (req, res) => {
   res.json({ message: "Welcome to your profile", user: req.user });
+};
+
+// ------------------ ADMIN ------------------
+export const admin = async (req, res) => {
+  res.json({ message: "Welcome to the admin panel", user: req.user });
 };
