@@ -3,7 +3,7 @@ import Hero from "./components/Hero";
 import About from "./components/About";
 import ErrorPage from "./errorpage";
 import Shop from "./components/Shop";
-// import Collection from "./components/Collection";
+import NewArrivals from "./components/NewArrivals";
 import Account from "./components/Account";
 import Cart from "./components/Cart";
 import Signup from "./components/Signup";
@@ -21,7 +21,7 @@ const routes = [
         index: true,
         element: (
           <>
-            <Hero />
+            {/* <Hero /> */}
             {/* <Gallery /> */}
           </>
         ),
@@ -30,10 +30,10 @@ const routes = [
         path: "shop",
         element: <Shop />,
       },
-      // {
-      //   path: "collection",
-      //   element: <Collection />,
-      // },
+      {
+        path: "newArrivals",
+        element: <NewArrivals />,
+      },
       {
         path: "about",
         element: <About />,

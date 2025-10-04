@@ -1,122 +1,128 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { CiSearch } from "react-icons/ci";
+import { HiMenu, HiX } from "react-icons/hi";
+
 
 const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
+   <nav className="w-full bg-white shadow-sm">
+  <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col items-center">
     
-    <nav className="fixed top-0 left-0 right-0 z-20 px-4 py-4  " style={{backgroundColor:"#000000"}}>
-      <div className="max-w-8xl mx-auto">
-        <div className="flex items-center justify-between ">
-          {/* Logo */}
-          <div >
-          <img src="./icons/logo.png" alt="logo" className='h-14 rounded-full' />
-            
-            
-          </div>
+    {/* 🔹 Top Bar with Logo and Hamburger */}
+    <div className="flex items-center w-full justify-center md:justify-center">
+      {/* Logo */}
+      <img
+        src="./icons/logo2.png"
+        alt="logo"
+        className="w-40 sm:w-56 md:w-72 md:mx-auto flex-shrink-0"
+      />
 
-          {/* Desktop Navigation Menu */}
-          <div className="hidden md:flex space-x-16">
-            <Link to="/" className="text-white hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
-              Home
-            </Link>
-            <Link to="/shop" className="text-white hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
-              Shop
-            </Link>
-            {/* <Link to="/collection" className="text-white hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
-              Collection
-            </Link> */}
-            <Link to="/about" className="text-white hover:text-gray-600 font-bold text-2xl transition-colors duration-200">
-              About
-            </Link>
-          </div>
+      {/* Hamburger Icon (Mobile) */}
+      <button
+        className="md:hidden ml-auto text-3xl text-gray-800"
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        {menuOpen ? <HiX /> : <HiMenu />}
+      </button>
+    </div>
 
-          {/* Desktop Right Icons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link to="account">
-            {/* Profile Icon */}
-            <button className="w-10 h-10">
-              
-              <img src="./icons/account.png" alt="user" />
-            </button>
-            </Link>
-            {/* Cart Icon with Badge */}
-              <Link to="/cart">
-            <div className="relative w-10 h-10">
-              <img src="./icons/shopping-bag.png" alt="cart"/>
-              <span className="absolute -top-1 -right-1 bg-white text-black text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                0
-              </span>
-            </div>
-              </Link>
-          </div>
+    {/* 🔹 Desktop Menu */}
+    <div className="hidden md:flex justify-between items-center w-full mt-4 pl-42">
+      {/* Left Links */}
+      <div className="flex items-center space-x-8">
+        <Link to="/" className="text-black text-xl font-medium hover:text-gray-600">
+          Home
+        </Link>
+        <Link to="/shop" className="text-black text-xl font-medium hover:text-gray-600">
+          Shop
+        </Link>
+      </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button
-              onClick={toggleMobileMenu}
-              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors duration-200"
-            >
-              <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
+      {/* Search Bar */}
+      <div className="relative w-64 xl:w-80">
+        <input
+          type="text"
+          placeholder="Search"
+          className="w-full pl-10 pr-3 py-2 rounded-full bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+        />
+        <CiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xl" />
+      </div>
+
+      {/* Right Links + Icons */}
+      <div className="flex items-center space-x-8">
+        <Link to="/newArrivals" className="text-black text-xl font-medium hover:text-gray-600">
+          New Arrivals
+        </Link>
+        <Link to="/about" className="text-black text-xl font-medium hover:text-gray-600">
+          About
+        </Link>
+
+        {/* Profile */}
+        <Link to="/account">
+          <img src="./icons/account.png" alt="user" className="w-6 h-6" />
+        </Link>
+
+        {/* Cart */}
+        <Link to="/cart" className="relative">
+          <img src="./icons/shopping-bag.png" alt="cart" className="w-6 h-6" />
+          <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            0
+          </span>
+        </Link>
+      </div>
+    </div>
+
+    {/* 🔹 Mobile Menu (collapsible) */}
+    {menuOpen && (
+      <div className="flex flex-col items-center w-full mt-4 space-y-4 md:hidden">
+        <div className="flex flex-col items-center space-y-3">
+          <Link to="/" onClick={() => setMenuOpen(false)} className="text-black text-lg font-medium hover:text-gray-600">
+            Home
+          </Link>
+          <Link to="/shop" onClick={() => setMenuOpen(false)} className="text-black text-lg font-medium hover:text-gray-600">
+            Shop
+          </Link>
+          <Link to="/newArrivals" onClick={() => setMenuOpen(false)} className="text-black text-lg font-medium hover:text-gray-600">
+            New Arrivals
+          </Link>
+          <Link to="/about" onClick={() => setMenuOpen(false)} className="text-black text-lg font-medium hover:text-gray-600">
+            About
+          </Link>
         </div>
 
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 pb-4">
-            <div className="flex flex-col space-y-3">
-              <Link to="/" className="text-white hover:text-gray-600 font-medium text-xl transition-colors duration-200">
-              Home
+        {/* Search + Icons (mobile) */}
+        <div className="w-full flex flex-col items-center space-y-3">
+          <div className="relative w-72">
+            <input
+              type="text"
+              placeholder="Search"
+              className="w-full pl-10 pr-3 py-2 rounded-full bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            />
+            <CiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xl" />
+          </div>
+
+          <div className="flex items-center space-x-6 mt-2">
+            <Link to="/account" onClick={() => setMenuOpen(false)}>
+              <img src="./icons/account.png" alt="user" className="w-6 h-6" />
             </Link>
-            <Link to="/shop" className="text-white hover:text-gray-600 font-medium text-xl transition-colors duration-200">
-              Shop
-            </Link>
-            <Link to="/about" className="text-white hover:text-gray-600 font-medium text-xl transition-colors duration-200">
-              About
-            </Link>
-            {/* <Link to="/collection" className="text-white hover:text-gray-600 font-medium text-xl transition-colors duration-200">
-              Collection
-            </Link> */}
-              
-              {/* Mobile Icons Row */}
-              <div className="flex items-center justify-center space-x-4 pt-4">
-                <Link to="account">
-            {/* Profile Icon */}
-            <button className="w-10 h-10">
-              
-              <img src="./icons/account.png" alt="user" />
-            </button>
-            </Link>
-            {/* Cart Icon with Badge */}
-              <Link to="/cart">
-            <div className="relative w-10 h-10">
-              <img src="./icons/shopping-bag.png" alt="cart"/>
-              <span className="absolute -top-1 -right-1 bg-white text-black text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <Link to="/cart" onClick={() => setMenuOpen(false)} className="relative">
+              <img src="./icons/shopping-bag.png" alt="cart" className="w-6 h-6" />
+              <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 0
               </span>
-            </div>
-              </Link>
-              </div>
-            </div>
+            </Link>
           </div>
-        )}
+        </div>
       </div>
-    </nav>
+    )}
+  </div>
+</nav>
 
   );
 };
 
 export default Navbar;
-
