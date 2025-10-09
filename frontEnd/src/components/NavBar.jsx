@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { scroller } from "react-scroll";
 import { CiSearch } from "react-icons/ci";
 import { HiMenu, HiX } from "react-icons/hi";
 
@@ -7,6 +8,28 @@ import { HiMenu, HiX } from "react-icons/hi";
 const Navbar = () => {
   
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const scrollToSection = (id) => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        scroller.scrollTo(id, {
+          smooth: true,
+          duration: 600,
+          offset: -80,
+        });
+      }, 300);
+    } else {
+      scroller.scrollTo(id, {
+        smooth: true,
+        duration: 600,
+        offset: -80,
+      });
+    }
+    setMenuOpen(false);
+  };
 
   return (
    <nav className="w-full bg-white shadow-sm">
@@ -54,12 +77,13 @@ const Navbar = () => {
 
       {/* Right Links + Icons */}
       <div className="flex items-center space-x-8">
-        <Link to="/newArrivals" className="text-black text-xl font-medium hover:text-gray-600">
-          New Arrivals
-        </Link>
-        <Link to="/about" className="text-black text-xl font-medium hover:text-gray-600">
-          About
-        </Link>
+        
+       <button
+              onClick={() => scrollToSection("new-arrivals")}
+              className="text-black text-xl font-medium hover:text-gray-600"
+            >
+              New Arrivals
+            </button>
 
         {/* Profile */}
         <Link to="/account">
@@ -86,9 +110,12 @@ const Navbar = () => {
           <Link to="/shop" onClick={() => setMenuOpen(false)} className="text-black text-lg font-medium hover:text-gray-600">
             Shop
           </Link>
-          <Link to="/newArrivals" onClick={() => setMenuOpen(false)} className="text-black text-lg font-medium hover:text-gray-600">
-            New Arrivals
-          </Link>
+          <button
+              onClick={() => scrollToSection("new-arrivals")}
+              className="text-black text-xl font-medium hover:text-gray-600"
+            >
+              New Arrivals
+            </button>
           <Link to="/about" onClick={() => setMenuOpen(false)} className="text-black text-lg font-medium hover:text-gray-600">
             About
           </Link>
@@ -126,3 +153,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

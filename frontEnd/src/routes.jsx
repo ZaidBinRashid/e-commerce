@@ -1,5 +1,5 @@
 import App from "./App";
-// import Hero from "./components/Hero";
+import ImageSlider from "./components/Imageslider";
 import About from "./components/About";
 import ErrorPage from "./errorpage";
 import Shop from "./components/Shop";
@@ -8,6 +8,8 @@ import Account from "./components/Account";
 import Cart from "./components/Cart";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
+import Testimonials from "./components/Testimonials";
+import ContactForm from "./components/Contactus";
 
 
 
@@ -22,7 +24,10 @@ const routes = [
         index: true,
         element: (
           <>
-        
+        <ImageSlider/>,
+        <NewArrivals/>,
+        <Testimonials/>,
+        <ContactForm/>
           </>
         ),
       },
@@ -30,10 +35,7 @@ const routes = [
         path: "shop",
         element: <Shop />,
       },
-      {
-        path: "newArrivals",
-        element: <NewArrivals />,
-      },
+      
       {
         path: "about",
         element: <About />,

@@ -17,7 +17,7 @@ export default function Footer() {
         <div>
           <h2 className="text-2xl font-bold text-white">HeritageWatchesCo</h2>
           <p className="mt-2 text-sm text-gray-400">
-            Classic watches, restored to their original glory.
+            Every watch tells more than time — it tells a story. Explore our curated collection of authentic, pre-owned timepieces built to last generations.
           </p>
         </div>
 
