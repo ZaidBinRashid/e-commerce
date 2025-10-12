@@ -12,6 +12,15 @@ const SQL = `
   );
   
   UPDATE users SET role = 'admin' WHERE email = 'zaidbinrashid85@gmail.com';
+  
+ CREATE TABLE IF NOT EXISTS products (
+   id SERIAL PRIMARY KEY,
+   title VARCHAR(100) NOT NULL,
+   description TEXT NOT NULL,
+   price NUMERIC(10, 2) NOT NULL,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 
 `;
 
