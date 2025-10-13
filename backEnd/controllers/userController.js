@@ -45,7 +45,9 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     // Query the database to find a user with the given email.
-    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
 
     // Extract the first result (there should only be one user with that email).
     const user = result.rows[0];
@@ -99,7 +101,6 @@ export const logOut = async (req, res) => {
   res.redirect("/login");
 };
 
-
 // ------------------ PROFILE ------------------
 export const profile = async (req, res) => {
   try {
@@ -110,7 +111,7 @@ export const profile = async (req, res) => {
     const result = await pool.query(
       "SELECT id, username, email, role FROM users WHERE id = $1",
       [userId]
-    )
+    );
 
     const userInfo = result.rows[0];
 
@@ -119,12 +120,8 @@ export const profile = async (req, res) => {
     // Send user info to the frontend (exclude password!)
     res.json(userInfo);
   } catch (error) {
-     console.error(error);
+    console.error(error);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-// ------------------ ADMIN ------------------
-export const admin = async (req, res) => {
-  res.json({ message: "Welcome to the admin panel", user: req.user });
-};

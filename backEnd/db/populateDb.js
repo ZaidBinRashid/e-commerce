@@ -18,6 +18,7 @@ const SQL = `
    title VARCHAR(100) NOT NULL,
    description TEXT NOT NULL,
    price NUMERIC(10, 2) NOT NULL,
+   image_url TEXT,
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
