@@ -16,7 +16,7 @@ export const upload = multer({ storage });
 // ------------------ Add Product (Admin only) ------------------
 export const addProduct = async (req, res) => {
   try {
-    const { title, description, price } = req.body; // Extract product details from request body
+    const { title, description, price, is_new } = req.body; // Extract product details from request body
     const imageUrl = `/uploads/${req.file.filename}`; // Construct image URL path
 
     // Validate input fields
@@ -26,8 +26,8 @@ export const addProduct = async (req, res) => {
 
     // Insert new product into database
     const result = await pool.query(
-      "INSERT INTO products (title, description, price, image_url) VALUES ($1, $2, $3, $4) RETURNING *",
-      [title, description, price, imageUrl]
+      "INSERT INTO products (title, description, price, image_url, is_new) VALUES ($1, $2, $3, $4) RETURNING *",
+      [title, description, price, imageUrl, is_new]
     );
 
     // Send success response
@@ -83,7 +83,7 @@ export const allProducts = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params; // Get product ID from URL params
-    const { title, description, price } = req.body; // Extract fields from body
+    const { title, description, price, is_new } = req.body; // Extract fields from body
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null; // If a new image is uploaded, use it; otherwise null
 
     // 1. Check if the product exists in the database
@@ -101,10 +101,10 @@ export const updateProduct = async (req, res) => {
     // 3. Update product details in the database
     const result = await pool.query(
       `UPDATE products 
-       SET title = $1, description = $2, price = $3, image_url = $4
-       WHERE id = $5
+       SET title = $1, description = $2, price = $3, image_url = $4, is_new = $5
+       WHERE id = $6
        RETURNING *`,
-      [title, description, price, finalImageUrl, id]
+      [title, description, price, finalImageUrl, is_new, id]
     );
 
     // 4. Send success response with updated product
