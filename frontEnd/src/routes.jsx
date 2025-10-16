@@ -1,15 +1,15 @@
 import App from "./App";
-import ImageSlider from "./components/Imageslider";
-import About from "./components/About";
+import ImageSlider from "./components/homepage/Imageslider";
+import About from "./components/homepage/About";
+import Shop from "./components/homepage/Shop";
+import NewArrivals from "./components/homepage/NewArrivals";
+import Cart from "./components/homepage/Cart";
+import Testimonials from "./components/homepage/Testimonials";
+import ContactForm from "./components/homepage/Contactus";
 import ErrorPage from "./errorpage";
-import Shop from "./components/Shop";
-import NewArrivals from "./components/NewArrivals";
-import Account from "./components/Account";
-import Cart from "./components/Cart";
-import Signup from "./components/Signup";
-import Login from "./components/Login";
-import Testimonials from "./components/Testimonials";
-import ContactForm from "./components/Contactus";
+import Account from "./components/user/Account";
+import SignupForm from "./components/user/SignupForm";
+import LoginForm from "./components/user/LoginForm";
 
 
 
@@ -48,8 +48,14 @@ const routes = [
         path: "cart",
         element: <Cart />,
       },
-      { path: "signUp", element: <Signup /> },
-      { path: "logIn", element: <Login /> },
+      { 
+        path: "signUp",
+        element: <SignupForm /> 
+      },
+      {
+        path: "logIn", 
+        element: <LoginForm /> 
+      },
     ],
   },
 ];
