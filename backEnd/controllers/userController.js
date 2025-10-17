@@ -93,7 +93,7 @@ export const login = async (req, res) => {
 };
 
 // ------------------ LOGOUT ------------------
-export const logOut = async (req, res) => {
+export const logout = async (req, res) => {
   // Clear the 'token' cookie from the user's browser, effectively logging them out.
   res.clearCookie("token");
 

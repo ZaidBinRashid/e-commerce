@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 
 export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useAuth(); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,6 +26,10 @@ export default function LoginForm() {
       });
 
       if (res.ok) {
+        const data = await res.json();
+
+        setUser(data.user);
+
         alert("Login successful!");
         navigate("/");
       } else {
