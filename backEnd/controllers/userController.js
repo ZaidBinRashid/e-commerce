@@ -83,7 +83,15 @@ export const login = async (req, res) => {
     });
 
     // Send a success message to the frontend.
-    res.json({ message: "Login successful" });
+    res.json({
+      message: "Login successful",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (err) {
     // If something unexpected happens (DB error, JWT error, etc.),
     // log it and send a 500 (Internal Server Error) to the client.
@@ -93,12 +101,18 @@ export const login = async (req, res) => {
 };
 
 // ------------------ LOGOUT ------------------
-export const logout = async (req, res) => {
-  // Clear the 'token' cookie from the user's browser, effectively logging them out.
-  res.clearCookie("token");
+// controllers/userController.js
+export const logout = (req, res) => {
+  // Clear cookie with the same options you used when setting it
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax", // <- if you used "none" when setting, use "none" here
+    path: "/", // ensure path matches
+  });
 
-  // Redirect the user to the login page.
-  res.redirect("/login");
+  // Return JSON so the frontend (SPA) can handle navigation
+  return res.status(200).json({ message: "Logged out" });
 };
 
 // ------------------ PROFILE ------------------
@@ -118,10 +132,9 @@ export const profile = async (req, res) => {
     if (!userInfo) return res.status(404).json({ error: "User not found" });
 
     // Send user info to the frontend (exclude password!)
-    res.json(userInfo);
+    res.json({ user: userInfo });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server error" });
   }
 };
-

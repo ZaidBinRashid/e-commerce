@@ -1,26 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 import { useAuth } from "../../auth/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
 export default function Account() {
   const [activeTab, setActiveTab] = useState("login");
   const { user, setUser, loading } = useAuth();
+  const navigate = useNavigate();
 
-  if (loading) return <div className="text-white">Checking authentication...</div>;
+  useEffect(() => {
+    if (user) {
+      navigate("/account"); // redirect after login
+    }
+  }, [user, navigate]);
+
+  if (loading)
+    return <div className="text-white">Checking authentication...</div>;
+
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-700 p-4">
       {user ? (
         <div className="text-center text-white">
           <p className="text-lg">Welcome, {user.username}</p>
+
+          {user.role === "admin" && (
+            <button
+              onClick={() => navigate("/adminDashboard")}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Go to Admin Dashboard
+            </button>
+          )}
+
           <button
             onClick={() => {
               axios
-                .post("http://localhost:8080/api/auth/logout", {}, { withCredentials: true })
+                .post(
+                  "http://localhost:8080/api/auth/logout",
+                  {},
+                  { withCredentials: true }
+                )
                 .then(() => setUser(null))
-                .catch(err => console.error(err));
+                .catch((err) => console.error(err));
             }}
             className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
           >

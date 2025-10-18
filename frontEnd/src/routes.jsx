@@ -10,6 +10,7 @@ import ErrorPage from "./errorpage";
 import Account from "./components/user/Account";
 import SignupForm from "./components/user/SignupForm";
 import LoginForm from "./components/user/LoginForm";
+import AdminDashboard from "./components/user/AdminDashboard";
 
 
 
@@ -55,6 +56,10 @@ const routes = [
       {
         path: "logIn", 
         element: <LoginForm /> 
+      },
+      {
+        path: "adminDashboard", 
+        element: <AdminDashboard /> 
       },
     ],
   },

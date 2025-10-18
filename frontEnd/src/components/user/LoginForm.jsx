@@ -25,13 +25,13 @@ export default function LoginForm() {
         credentials: "include",
       });
 
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
 
         setUser(data.user);
 
         alert("Login successful!");
-        navigate("/");
+        navigate("/account");
       } else {
         const err = await res.json();
         alert(err.message || "Login failed");
