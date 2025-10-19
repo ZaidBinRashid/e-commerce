@@ -48,7 +48,7 @@ export default function SignupForm() {
 
       if (res.ok) {
         alert("Signup successful!");
-        navigate("/login");
+        // navigate("/login");
       } else {
         const err = await res.json();
         alert(err.message || "Signup failed");

@@ -30,7 +30,7 @@ export default function Account() {
           {user.role === "admin" && (
             <button
               onClick={() => navigate("/adminDashboard")}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 mr-2"
             >
               Go to Admin Dashboard
             </button>
