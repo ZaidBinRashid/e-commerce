@@ -11,9 +11,9 @@ import Account from "./components/user/Account";
 import SignupForm from "./components/user/SignupForm";
 import LoginForm from "./components/user/LoginForm";
 import AdminDashboard from "./components/user/AdminDashboard";
-
-
-
+import AdminRoute from "./auth/AdminRoute";
+import Products from "./components/Products/Products";
+import Analytics from "./components/Products/Analytics";
 
 const routes = [
   {
@@ -25,10 +25,10 @@ const routes = [
         index: true,
         element: (
           <>
-        <ImageSlider/>,
-        <NewArrivals/>,
-        <Testimonials/>,
-        <ContactForm/>
+            <ImageSlider />,
+            <NewArrivals />,
+            <Testimonials />,
+            <ContactForm />
           </>
         ),
       },
@@ -36,7 +36,7 @@ const routes = [
         path: "shop",
         element: <Shop />,
       },
-      
+
       {
         path: "about",
         element: <About />,
@@ -49,17 +49,26 @@ const routes = [
         path: "cart",
         element: <Cart />,
       },
-      { 
+      {
         path: "signUp",
-        element: <SignupForm /> 
+        element: <SignupForm />,
       },
       {
-        path: "logIn", 
-        element: <LoginForm /> 
+        path: "logIn",
+        element: <LoginForm />,
       },
       {
-        path: "adminDashboard", 
-        element: <AdminDashboard /> 
+        path: "adminDashboard",
+        element: (
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        ),
+         children: [
+          { index: true, element: <p>Welcome to the Admin Dashboard</p> },
+          { path: "products", element: <Products /> },
+          { path: "analytics", element: <Analytics /> },
+        ],
       },
     ],
   },
