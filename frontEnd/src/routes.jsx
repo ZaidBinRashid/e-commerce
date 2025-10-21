@@ -12,8 +12,12 @@ import SignupForm from "./components/user/SignupForm";
 import LoginForm from "./components/user/LoginForm";
 import AdminDashboard from "./components/user/AdminDashboard";
 import AdminRoute from "./auth/AdminRoute";
-import Products from "./components/Products/Products";
+import AllProducts from "./components/Products/AllProducts";
+import AddProducts from "./components/Products/AddProducts";
+import DeleteProducts from "./components/Products/DeleteProducts";
+import UpdateProducts from "./components/Products/UpdateProducts"
 import Analytics from "./components/Products/Analytics";
+
 
 const routes = [
   {
@@ -66,7 +70,10 @@ const routes = [
         ),
          children: [
           { index: true, element: <p>Welcome to the Admin Dashboard</p> },
-          { path: "products", element: <Products /> },
+          { path: "allProducts", element: <AllProducts /> },
+          { path: "addProducts", element: <AddProducts /> },
+          { path: "deleteProducts", element: <DeleteProducts /> },
+          { path: "updateProducts", element: <UpdateProducts /> },
           { path: "analytics", element: <Analytics /> },
         ],
       },

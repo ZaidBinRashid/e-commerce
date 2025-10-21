@@ -6,14 +6,14 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // <--- new
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios
       .get("http://localhost:8080/api/auth/profile/:id", { withCredentials: true })
       .then(res => setUser(res.data.user))
       .catch(() => setUser(null))
-      .finally(() => setLoading(false)) // <--- stop loading after response
+      .finally(() => setLoading(false))
      }, []);
 
   return (

@@ -8,7 +8,7 @@ const SQL = `
     email VARCHAR(100) UNIQUE NOT NULL,   -- email
     password_hash TEXT NOT NULL,          -- hashed password
     role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')), 
-    is_new BOOLEAN DEFAULT FALSE,
+    is_new BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
   

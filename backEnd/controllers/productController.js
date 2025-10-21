@@ -16,8 +16,9 @@ export const upload = multer({ storage });
 // ------------------ Add Product (Admin only) ------------------
 export const addProduct = async (req, res) => {
   try {
-    const { title, description, price, is_new } = req.body; // Extract product details from request body
-    const imageUrl = `/uploads/${req.file.filename}`; // Construct image URL path
+    const { title, description, price} = req.body; // Extract product details from request body
+    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+
 
     // Validate input fields
     if (!title || !description || !price) {
@@ -26,8 +27,8 @@ export const addProduct = async (req, res) => {
 
     // Insert new product into database
     const result = await pool.query(
-      "INSERT INTO products (title, description, price, image_url, is_new) VALUES ($1, $2, $3, $4) RETURNING *",
-      [title, description, price, imageUrl, is_new]
+      "INSERT INTO products (title, description, price, image_url) VALUES ($1, $2, $3, $4) RETURNING *",
+      [title, description, price, imageUrl]
     );
 
     // Send success response
@@ -72,7 +73,7 @@ export const allProducts = async (req, res) => {
     const result = await pool.query("SELECT * FROM products");
 
     // Send response with all products
-    res.json({ Products: result.rows });
+    res.json({ products: result.rows });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" }); // Handle server errors
