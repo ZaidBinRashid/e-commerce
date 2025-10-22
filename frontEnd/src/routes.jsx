@@ -73,7 +73,7 @@ const routes = [
           { path: "allProducts", element: <AllProducts /> },
           { path: "addProducts", element: <AddProducts /> },
           { path: "deleteProducts", element: <DeleteProducts /> },
-          { path: "updateProducts", element: <UpdateProducts /> },
+          { path: "updateProduct/:id", element: <UpdateProducts /> },
           { path: "analytics", element: <Analytics /> },
         ],
       },

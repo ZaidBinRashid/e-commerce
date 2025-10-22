@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import  { Link } from "react-router-dom"
 
 export default function AllProducts() {
   const [products, setProducts] = useState([]); // ✅ initialize as array
@@ -8,7 +9,9 @@ export default function AllProducts() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/auth/allProducts", { withCredentials: true })
+      .get("http://localhost:8080/api/auth/allProducts", {
+        withCredentials: true,
+      })
       .then((res) => {
         // ✅ check if products exist in response
         if (Array.isArray(res.data.products)) {
@@ -27,8 +30,7 @@ export default function AllProducts() {
 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
-  if (!products || products.length === 0)
-    return <p>No products found.</p>;
+  if (!products || products.length === 0) return <p>No products found.</p>;
 
   return (
     <div className="p-6">
@@ -38,7 +40,7 @@ export default function AllProducts() {
         {products.map((product) => (
           <div
             key={product.id}
-            className="bg-white p-4 rounded-lg shadow hover:shadow-md transition"
+            className="bg-white p-4 rounded-lg border border-black shadow hover:shadow-md transition"
           >
             {product.image_url && (
               <img
@@ -50,8 +52,13 @@ export default function AllProducts() {
             <h3 className="text-lg font-bold">{product.title}</h3>
             <p className="text-gray-600 text-sm">{product.description}</p>
             <p className="text-indigo-600 font-semibold mt-2">
-              ${product.price}
+              ₹{product.price}
             </p>
+            <Link to={`/adminDashboard/updateProduct/${product.id}`}>
+              <button className="bg-yellow-500 text-white px-3 py-1 rounded mt-2 hover:bg-yellow-600">
+                Edit
+              </button>
+            </Link>
           </div>
         ))}
       </div>

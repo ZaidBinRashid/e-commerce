@@ -49,7 +49,7 @@ const AdminDashboard = () => {
            Delete Products
           </NavLink>
           <NavLink
-            to="updateProducts"
+            to="updateProduct/:id"
             className={({ isActive }) =>
               `py-2 rounded-md font-medium ${
                 isActive ? "bg-gray-200 text-blue-600" : "hover:bg-gray-100"
@@ -74,7 +74,7 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="flex-1 bg-white p-6">
         <h1 className="text-2xl font-semibold mb-4">Admin Dashboard</h1>
-        <div className="w-full h-[500px] border border-gray-300  rounded-2xl flex items-center justify-center text-gray-500">
+        <div className="w-full h-[700px] border border-gray-300  rounded-2xl flex items-center justify-center">
           <Outlet/>
         </div>
       </main>
