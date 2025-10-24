@@ -230,19 +230,13 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden lg:flex items-center space-x-10">
+        <div className="hidden lg:flex items-center space-x-10 text-xl">
           <Link to="/" className="text-gray-800 hover:text-gray-500 font-medium">
             Home
           </Link>
           <Link to="/shop" className="text-gray-800 hover:text-gray-500 font-medium">
             Shop
           </Link>
-          <button
-            onClick={() => scrollToSection("new-arrivals")}
-            className="text-gray-800 hover:text-gray-500 font-medium"
-          >
-            New Arrivals
-          </button>
           <Link to="/about" className="text-gray-800 hover:text-gray-500 font-medium">
             About
           </Link>
@@ -255,7 +249,7 @@ const Navbar = () => {
             <input
               type="text"
               placeholder="Search"
-              className="pl-10 pr-3 py-1.5 rounded-full bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="w-sm pl-10 pr-3 py-1.5 rounded-full bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
             />
           </div>
 

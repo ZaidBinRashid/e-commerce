@@ -3,10 +3,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const ImageSlider = () => {
   const images = [
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1500&q=80",
-    "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=1500&q=80",
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1500&q=80",
-    "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=1500&q=80",
+    "./watches/watch1.jpg",
+    "./watches/watch2.jpg",
+    "./watches/watch3.jpg",
+    "./watches/watch4.jpg",
+    "./watches/watch5.jpg",
+
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -1,48 +1,68 @@
 import React from "react";
+import BlurText from "../UI/BlurText";
+
+const handleAnimationComplete = () => {
+  console.log("Animation completed!");
+};
+
+<BlurText
+  text="Isn't this so cool?!"
+  delay={150}
+  animateBy="words"
+  direction="top"
+  onAnimationComplete={handleAnimationComplete}
+  className="text-2xl mb-8"
+/>;
 
 const products = [
   {
     id: 1,
     name: "Citizen",
     price: "$99",
-    image:
-      "./watches/citizen.jpeg",
+    image: "./watches/citizen.jpeg",
   },
   {
     id: 2,
     name: "Seiko",
     price: "$149",
-    image:
-      "./watches/seiko.jpeg",
+    image: "./watches/seiko.jpeg",
   },
   {
     id: 3,
     name: "HMT",
     price: "$89",
-    image:
-      "./watches/Hmt.jpeg",
+    image: "./watches/Hmt.jpeg",
   },
   {
     id: 4,
     name: "Omega",
     price: "$129",
-    image:
-      "./watches/omega.jpg",
+    image: "./watches/omega.jpg",
   },
- 
 ];
 
 const NewArrivals = () => {
   return (
-    <section id='new-arrivals' className="w-full py-4 px-4 bg-gray-200">
-      <div className="max-w-6xl mx-auto px-6 py-6 text-center">
-        {/* Header */}
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-          New Arrivals
-        </h2>
-        <p className="text-gray-500 mb-10">
-          Check out the latest additions to our collection
-        </p>
+    <section id="new-arrivals" className="w-full py-4 px-4 bg-gray-200">
+      <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col items-center">
+
+        <BlurText
+          text="New Arrivals"
+          delay={150}
+          animateBy="words"
+          direction="top"
+          onAnimationComplete={handleAnimationComplete}
+          className="text-3xl mb-4 font-bold"
+        />
+
+        <BlurText
+          text="Check out the latest additions to our collection!"
+          delay={150}
+          animateBy="words"
+          direction="top"
+          onAnimationComplete={handleAnimationComplete}
+          className="text-xl mb-8"
+        />
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
