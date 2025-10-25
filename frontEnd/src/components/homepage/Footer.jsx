@@ -79,22 +79,22 @@ export default function Footer() {
             >
               <FaWhatsapp />
             </a>
-            <a
+            {/* <a
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white text-2xl"
             >
               <FaFacebookF />
-            </a>
-            <a
+            </a> */}
+            {/* <a
               href="https://twitter.com"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white text-2xl"
             >
               <FaTwitter />
-            </a>
+            </a> */}
             <a
               href="https://instagram.com"
               target="_blank"

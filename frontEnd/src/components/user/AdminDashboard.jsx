@@ -38,25 +38,16 @@ const AdminDashboard = () => {
           >
            Add Products
           </NavLink>
+          
           <NavLink
-            to="deleteProducts"
+            to="addTestimonials"
             className={({ isActive }) =>
               `py-2 rounded-md font-medium ${
                 isActive ? "bg-gray-200 text-blue-600" : "hover:bg-gray-100"
               }`
             }
           >
-           Delete Products
-          </NavLink>
-          <NavLink
-            to="updateProduct/:id"
-            className={({ isActive }) =>
-              `py-2 rounded-md font-medium ${
-                isActive ? "bg-gray-200 text-blue-600" : "hover:bg-gray-100"
-              }`
-            }
-          >
-           Update Products
+           Add testimonials
           </NavLink>
           <NavLink
             to="analytics"

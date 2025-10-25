@@ -5,7 +5,7 @@ import Shop from "./components/homepage/Shop";
 import NewArrivals from "./components/homepage/NewArrivals";
 import Cart from "./components/homepage/Cart";
 import Testimonials from "./components/homepage/Testimonials";
-import ContactForm from "./components/homepage/Contactus";
+import Contact from "./components/homepage/Contactus";
 import ErrorPage from "./errorpage";
 import Account from "./components/user/Account";
 import SignupForm from "./components/user/SignupForm";
@@ -14,9 +14,9 @@ import AdminDashboard from "./components/user/AdminDashboard";
 import AdminRoute from "./auth/AdminRoute";
 import AllProducts from "./components/Products/AllProducts";
 import AddProducts from "./components/Products/AddProducts";
-import DeleteProducts from "./components/Products/DeleteProducts";
-import UpdateProducts from "./components/Products/UpdateProducts"
 import Analytics from "./components/Products/Analytics";
+import AddTestimonials from "./components/Products/AddTestimonials";
+import Brands from "./components/homepage/Brands";
 
 
 const routes = [
@@ -31,8 +31,9 @@ const routes = [
           <>
             <ImageSlider />,
             <NewArrivals />,
+            <Brands />,
             <Testimonials />,
-            <ContactForm />
+            <Contact />
           </>
         ),
       },
@@ -72,9 +73,9 @@ const routes = [
           { index: true, element: <p>Welcome to the Admin Dashboard</p> },
           { path: "allProducts", element: <AllProducts /> },
           { path: "addProducts", element: <AddProducts /> },
-          { path: "deleteProducts", element: <DeleteProducts /> },
-          { path: "updateProduct/:id", element: <UpdateProducts /> },
           { path: "analytics", element: <Analytics /> },
+          { path: "addTestimonials", element: <AddTestimonials /> },
+          
         ],
       },
     ],

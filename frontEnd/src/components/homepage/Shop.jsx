@@ -51,9 +51,9 @@ useEffect(() => {
             <div className="p-4">
               <h3 className="text-lg font-semibold text-gray-800">{product.title}</h3>
               <p className="text-gray-500 text-sm mt-1">{product.description}</p>
-              <p className="text-indigo-600 font-bold mt-3">₹{product.price}</p>
+              <p className="text-black font-bold mt-3">₹{product.price}</p>
 
-              <button className="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2  transition">
+              <button className="mt-4 w-full bg-slate-800 hover:bg-slate-600 text-white font-medium py-2  transition">
                 View Details
               </button>
             </div>

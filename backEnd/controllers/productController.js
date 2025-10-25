@@ -129,3 +129,42 @@ export const updateProduct = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+// ----------------------- AddTestimonials ----------------------------
+export const addTestimonials  = async (req, res) => {
+  try {
+    const { name, comment } = req.body;
+
+  if (!name || !comment){
+    return res.status(400).json({ error: "All fields are required!!" });
+  }
+
+  const result  = await pool.query(
+    "INSERT INTO testimonials ( name, comment) VALUES ($1, $2) RETURNING *",
+    [name, comment]
+  );
+
+  res.status(201).json({
+    message: "Testimonial added successfully",
+    testimonial: result.rows[0],
+  })
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+
+}
+
+// -------------------- Fetch All Testimonials ----------------------
+export const testimonials = async (req, res) => {
+  try {
+    // Fetch all products from database
+    const result = await pool.query("SELECT * FROM testimonials");
+
+    // Send response with all products
+    res.json({ testimonials: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" }); // Handle server errors
+  }
+};

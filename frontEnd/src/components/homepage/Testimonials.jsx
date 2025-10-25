@@ -1,64 +1,51 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    role: "Product Designer",
-    image:
-      "https://randomuser.me/api/portraits/women/68.jpg",
-    text: "Absolutely love this product! The quality exceeded my expectations and the customer service was amazing.",
-  },
-  {
-    id: 2,
-    name: "David Smith",
-    role: "Software Engineer",
-    image:
-      "https://randomuser.me/api/portraits/men/12.jpg",
-    text: "The experience was seamless from start to finish. Highly recommend this to anyone looking for value and quality.",
-  },
-  {
-    id: 3,
-    name: "Emily Carter",
-    role: "Freelance Writer",
-    image:
-      "https://randomuser.me/api/portraits/women/45.jpg",
-    text: "It’s rare to find a brand that truly cares about its customers. This team went above and beyond!",
-  },
-  {
-    id: 4,
-    name: "James Wilson",
-    role: "Entrepreneur",
-    image:
-      "https://randomuser.me/api/portraits/men/32.jpg",
-    text: "High quality, fast delivery, and outstanding support. I’ll definitely be coming back for more!",
-  },
-];
+import BlurText from "../UI/BlurText";
+
+const handleAnimationComplete = () => {
+  console.log("Animation completed!");
+};
 
 const Testimonials = () => {
+  const [testimonials, setTestimonials] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Auto scroll every 4 seconds
+  // Fetch testimonials from backend
   useEffect(() => {
-    if (isHovered) return;
+    axios
+      .get("http://localhost:8080/api/auth/testimonials", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (Array.isArray(res.data.testimonials)) {
+          setTestimonials(res.data.testimonials);
+        } else {
+          console.error("Unexpected response format:", res.data);
+          setTestimonials([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch testimonials:", err);
+        setError("Failed to load testimonials.");
+      });
+  }, []);
+
+  // Auto-scroll every 4 seconds
+  useEffect(() => {
+    if (isHovered || testimonials.length === 0) return;
     const interval = setInterval(() => {
-      nextSlide();
+      setCurrentIndex((prev) =>
+        prev === testimonials.length - 1 ? 0 : prev + 1
+      );
     }, 4000);
     return () => clearInterval(interval);
-  }, [currentIndex, isHovered]);
+  }, [currentIndex, isHovered, testimonials]);
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) =>
-      prev === testimonials.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) =>
-      prev === 0 ? testimonials.length - 1 : prev - 1
-    );
-  };
+  if (error) return <p className="text-red-500 text-center">{error}</p>;
 
   return (
     <section
@@ -66,66 +53,58 @@ const Testimonials = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="max-w-4xl mx-auto px-6 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-10">
-          What Our Customers Say
-        </h2>
+      <div className="max-w-4xl mx-auto px-6 text-center flex flex-col items-center">
+        
+        
+          <BlurText
+            text="What Our Customers Say"
+            delay={150}
+            animateBy="words"
+            direction="top"
+            onAnimationComplete={handleAnimationComplete}
+            className="text-3xl mb-6 font-bold md:text-4xl "
+          />
+        
 
         {/* Testimonial Card */}
-        <div className="relative">
-          <div
-            key={testimonials[currentIndex].id}
-            className="bg-white rounded-2xl shadow-lg p-8 transition-all duration-700 ease-in-out"
-          >
-            <div className="flex flex-col items-center space-y-4">
-              <img
-                src={testimonials[currentIndex].image}
-                alt={testimonials[currentIndex].name}
-                className="w-20 h-20 rounded-full object-cover"
-              />
-              <p className="text-gray-600 italic max-w-xl">
-                “{testimonials[currentIndex].text}”
-              </p>
-              <div>
-                <h4 className="font-semibold text-gray-800">
+        {testimonials.length > 0 ? (
+           <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9 }}
+      >
+          <div className="relative">
+            <div
+              key={testimonials[currentIndex].id}
+              className="bg-slate-800 rounded-2xl shadow-lg p-8 transition-all duration-700 ease-in-out"
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <p className="text-white italic max-w-xl">
+                  “{testimonials[currentIndex].comment}”
+                </p>
+                <h4 className="font-semibold text-white">
                   {testimonials[currentIndex].name}
                 </h4>
-                <p className="text-gray-500 text-sm">
-                  {testimonials[currentIndex].role}
-                </p>
               </div>
             </div>
-          </div>
 
-          {/* Dots Navigation */}
-          <div className="flex justify-center mt-6 space-x-2">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full ${
-                  currentIndex === index
-                    ? "bg-gray-800"
-                    : "bg-gray-400"
-                }`}
-              ></button>
-            ))}
+            {/* Dots Navigation */}
+            <div className="flex justify-center mt-6 space-x-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-3 h-3 rounded-full ${
+                    currentIndex === index ? "bg-gray-800" : "bg-gray-400"
+                  }`}
+                ></button>
+              ))}
+            </div>
           </div>
-
-          {/* Optional Arrows */}
-          {/* <button
-            onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/40 text-white px-3 py-2 rounded hover:bg-black/60 transition"
-          >
-            ‹
-          </button>
-          <button
-            onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/40 text-white px-3 py-2 rounded-full hover:bg-black/60 transition"
-          >
-            ›
-          </button> */}
-        </div>
+          </motion.div>
+        ) : (
+          <p className="text-gray-600 italic">No testimonials yet.</p>
+        )}
       </div>
     </section>
   );
