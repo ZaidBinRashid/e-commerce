@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
+
 
 const ImageSlider = () => {
   const images = [
@@ -38,6 +40,11 @@ const ImageSlider = () => {
   const goToSlide = (index) => setCurrentIndex(index);
 
   return (
+    <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9 }}
+      >
     <div
       className="relative w-full overflow-hidden group"
       onMouseEnter={() => setIsHovered(true)}
@@ -79,6 +86,7 @@ const ImageSlider = () => {
         ))}
       </div>
     </div>
+    </motion.div>
   );
 };
 

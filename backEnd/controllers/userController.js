@@ -101,7 +101,6 @@ export const login = async (req, res) => {
 };
 
 // ------------------ LOGOUT ------------------
-// controllers/userController.js
 export const logout = (req, res) => {
   // Clear cookie with the same options you used when setting it
   res.clearCookie("token", {

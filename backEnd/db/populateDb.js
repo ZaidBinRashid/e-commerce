@@ -26,8 +26,8 @@ const SQL = `
     
     CREATE TABLE IF NOT EXISTS testimonials(
       id SERIAL PRIMARY KEY,
-      name VARCHAR(50) UNIQUE NOT NULL,
-      comment VARCHAR(150) UNIQUE NOT NULL,
+      name VARCHAR(50) NOT NULL,
+      comment VARCHAR(150)  NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
      );
 
