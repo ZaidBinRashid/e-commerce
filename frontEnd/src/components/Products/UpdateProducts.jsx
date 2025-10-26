@@ -2,17 +2,21 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import * as Yup from "yup";
 import { useParams, useNavigate } from "react-router-dom";
+import { useProductContext } from "../../auth/ProductContext";
 
+// ✅ Validation only for fields user edits
 const ProductSchema = Yup.object().shape({
-  title: Yup.string().min(3).max(50).required("Title is required"),
-  description: Yup.string().min(3).max(200).required("Description is required"),
-  price: Yup.number().min(1, "Price must be positive").required("Price is required"),
+  title: Yup.string().min(3).max(50),
+  description: Yup.string().min(3).max(200),
+  price: Yup.number().min(1, "Price must be positive"),
   is_new: Yup.boolean(),
 });
 
 export default function UpdateProducts() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { products, setProducts } = useProductContext();
+
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -24,22 +28,38 @@ export default function UpdateProducts() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Fetch existing product
+  // ✅ Fetch product from context or backend
   useEffect(() => {
-    axios
-      .get(`http://localhost:8080/api/auth/product/${id}`, { withCredentials: true })
-      .then((res) => {
-        setForm({
-          title: res.data.product.title,
-          description: res.data.product.description,
-          price: res.data.product.price,
-          is_new: res.data.product.is_new,
-        });
-        setPreview(res.data.product.image_url);
-      })
-      .catch((err) => console.error(err));
-  }, [id]);
+    const existingProduct = products.find((p) => p.id === Number(id));
 
+    if (existingProduct) {
+      setForm({
+        title: existingProduct.title,
+        description: existingProduct.description,
+        price: existingProduct.price,
+        is_new: existingProduct.is_new,
+      });
+      setPreview(existingProduct.image_url);
+    } else {
+      // fallback fetch if context empty
+      axios
+        .get(`http://localhost:8080/api/auth/product/${id}`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setForm({
+            title: res.data.product.title,
+            description: res.data.product.description,
+            price: res.data.product.price,
+            is_new: res.data.product.is_new,
+          });
+          setPreview(res.data.product.image_url);
+        })
+        .catch((err) => console.error("Error fetching product:", err));
+    }
+  }, [id, products]);
+
+  // ✅ Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -48,14 +68,14 @@ export default function UpdateProducts() {
     }));
   };
 
+  // ✅ Image upload handler
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
+    if (file) setPreview(URL.createObjectURL(file));
   };
 
+  // ✅ Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -65,10 +85,11 @@ export default function UpdateProducts() {
       await ProductSchema.validate(form, { abortEarly: false });
 
       const formData = new FormData();
-      formData.append("title", form.title);
-      formData.append("description", form.description);
-      formData.append("price", form.price);
-      formData.append("is_new", form.is_new);
+      Object.entries(form).forEach(([key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      });
       if (image) formData.append("image", image);
 
       const res = await axios.put(
@@ -80,7 +101,13 @@ export default function UpdateProducts() {
         }
       );
 
-      alert(" Product updated successfully!");
+      alert("✅ Product updated successfully!");
+      // update context
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === Number(id) ? { ...p, ...res.data.updatedProduct } : p
+        )
+      );
       navigate("/adminDashboard/allproducts");
     } catch (err) {
       if (err.inner) {
@@ -89,7 +116,7 @@ export default function UpdateProducts() {
         setErrors(formErrors);
       } else {
         console.error(err);
-        alert(" Failed to update product");
+        alert("❌ Failed to update product");
       }
     } finally {
       setLoading(false);
@@ -99,7 +126,7 @@ export default function UpdateProducts() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 max-w-md mx-auto bg-white p-6 rounded-lg shadow-md"
+      className="space-y-4 max-w-md mx-auto bg-white p-6 rounded-lg shadow-md mt-8"
     >
       <h2 className="text-xl font-semibold mb-4 text-center">Edit Product</h2>
 
@@ -120,7 +147,9 @@ export default function UpdateProducts() {
         onChange={handleChange}
         className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
       />
-      {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
+      {errors.description && (
+        <p className="text-xs text-red-500">{errors.description}</p>
+      )}
 
       <input
         type="number"
@@ -132,12 +161,24 @@ export default function UpdateProducts() {
       />
       {errors.price && <p className="text-xs text-red-500">{errors.price}</p>}
 
+      {/* ✅ New Arrival Toggle */}
       <label className="flex items-center gap-2">
-        <input type="checkbox" name="is_new" checked={form.is_new} onChange={handleChange} />
-        Mark as New Arrival
+        <input
+          type="checkbox"
+          name="is_new"
+          checked={form.is_new}
+          onChange={handleChange}
+        />
+        {form.is_new ? "Remove from New Arrivals" : "Mark as New Arrival"}
       </label>
 
-      {preview && <img src={preview} alt="preview" className="w-40 h-40 object-cover rounded mb-2" />}
+      {preview && (
+        <img
+          src={preview}
+          alt="preview"
+          className="w-40 h-40 object-cover rounded mb-2"
+        />
+      )}
 
       <input type="file" onChange={handleFileChange} />
       {errors.image && <p className="text-xs text-red-500">{errors.image}</p>}

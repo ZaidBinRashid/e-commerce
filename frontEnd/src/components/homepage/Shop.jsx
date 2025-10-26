@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import BlurText from "../UI/BlurText";
+import { motion } from "framer-motion";
+
+const handleAnimationComplete = () => {
+  console.log("Animation completed!");
+};
+
 
 export default function Shop() {
   const [products, setProducts] = useState([]);
@@ -32,9 +39,23 @@ useEffect(() => {
     return <p className="text-center text-gray-600 mt-10">No products available.</p>;
 
   return (
-    <div className="bg-gray-200 min-h-screen p-6">
-      <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">🛍️ Our Collection</h2>
+    <div className="bg-gray-200 min-h-screen p-6 flex flex-col items-center">
+      
+      <BlurText
+        text="🛍️ Our Collection"
+        delay={150}
+        animateBy="words"
+        direction="top"
+        onAnimationComplete={handleAnimationComplete}
+        className="text-3xl mb-4 font-bold"
+      />
 
+
+    <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9 }}
+      >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 md:w-md lg:w-3xl  ">
         {products.map((product) => (
           <div
@@ -60,6 +81,7 @@ useEffect(() => {
           </div>
         ))}
       </div>
+      </motion.div>
     </div>
   );
 }
