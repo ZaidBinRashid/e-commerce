@@ -14,15 +14,49 @@ const SQL = `
   
   UPDATE users SET role = 'admin' WHERE email = 'zaidbinrashid85@gmail.com';
   
- CREATE TABLE IF NOT EXISTS products (
+   CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
-    price NUMERIC(10, 2) NOT NULL,
-    image_url TEXT,
+    detailed_description TEXT NOT NULL,
+    brand VARCHAR(50) NOT NULL,
+    base_price NUMERIC(10, 2) NOT NULL,
+    wrist_size VARCHAR(50) NOT NULL,
+    is_new BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
     );
+
+    CREATE TABLE IF NOT EXISTS product_images (
+     id SERIAL PRIMARY KEY,
+     product_id INT REFERENCES products(id) ON DELETE CASCADE,
+     image_url TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS product_colors (
+      id SERIAL PRIMARY KEY,
+      product_id INT REFERENCES products(id) ON DELETE CASCADE,
+      color_name VARCHAR(50) NOT NULL,
+      color_image_url TEXT NOT NULL,
+      price_adjustment NUMERIC(10, 2) DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS product_back_types (
+      id SERIAL PRIMARY KEY,
+      product_id INT REFERENCES products(id) ON DELETE CASCADE,
+      type_name VARCHAR(50) NOT NULL,
+      image_url TEXT,
+      price_adjustment NUMERIC(10, 2) DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS product_wrists (
+      id SERIAL PRIMARY KEY,
+      product_id INT REFERENCES products(id) ON DELETE CASCADE,
+      wrist_style VARCHAR(50) NOT NULL,
+      image_url TEXT,
+      price_adjustment NUMERIC(10, 2) DEFAULT 0
+    );
+
+
     
     CREATE TABLE IF NOT EXISTS testimonials(
       id SERIAL PRIMARY KEY,

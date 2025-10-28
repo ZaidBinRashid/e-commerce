@@ -59,13 +59,17 @@ export default function NewArrivals() {
               key={product.id}
               className="bg-white  p-4 shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
             >
-              {product.image_url && (
-                <img
-                  src={product.image_url}
-                  alt={product.title}
-                  className="w-full h-56 object-cover  transition-transform duration-300 hover:scale-105"
-                />
-              )}
+              {product.images && product.images.length > 0 && (
+              <img
+                src={
+                  product.images[0].startsWith("http")
+                    ? product.images[0]
+                    : `http://localhost:8080${product.images[0]}`
+                }
+                alt={product.title}
+                className="w-full h-48 sm:h-56 md:h-60 lg:h-48 object-cover rounded-md mb-3"
+              />
+            )}
 
               <div className="p-4">
                 <h3 className="text-lg font-semibold text-gray-800">
@@ -74,7 +78,7 @@ export default function NewArrivals() {
                 <p className="text-gray-500 text-sm mt-1">
                   {product.description}
                 </p>
-                <p className="text-black font-bold mt-3">₹{product.price}</p>
+                <p className="text-black font-bold mt-3">₹{product.base_price}</p>
 
                 <button className="mt-4 w-full bg-slate-800 hover:bg-slate-600 text-white font-medium py-2  transition">
                   View Details

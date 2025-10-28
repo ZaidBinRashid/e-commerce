@@ -3,44 +3,176 @@ import multer from "multer"; // Import multer for handling file uploads
 import path from "path"; // Import path module to work with file paths
 
 // ------------------ Multer Configuration ------------------
-// Define storage location and filename format for uploaded images
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"), // Save images in 'uploads' folder
+  destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) =>
-    cb(null, Date.now() + path.extname(file.originalname)), // Unique filename using timestamp + original file extension
+    cb(null, Date.now() + "-" + file.originalname),
 });
 
-// Initialize multer upload middleware
-export const upload = multer({ storage });
+export const upload = multer({ storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!allowedTypes.includes(file.mimetype)) {
+      cb(new Error("Invalid file type. Only JPG, PNG allowed!"), false);
+    } else {
+      cb(null, true);
+    }
+  },
+}).fields([
+  { name: "images", maxCount: 10 }, // product images
+  { name: "colorImages", maxCount: 10 },
+  { name: "backImages", maxCount: 10 },
+  { name: "wristImages", maxCount: 10 },
+ ]);
 
 // ------------------ Add Product (Admin only) ------------------
 export const addProduct = async (req, res) => {
+  const client = await pool.connect();
   try {
-    const { title, description, price} = req.body; // Extract product details from request body
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    const {
+      title,
+      description,
+      detailed_description,
+      base_price,
+      brand,
+      wrist_size,
+      colors,
+      backs,
+      wrists,
+    } = req.body;
 
-
-    // Validate input fields
-    if (!title || !description || !price) {
+    if (!title || !description || !detailed_description || !base_price) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Insert new product into database
-    const result = await pool.query(
-      "INSERT INTO products (title, description, price, image_url) VALUES ($1, $2, $3, $4) RETURNING *",
-      [title, description, price, imageUrl]
+    await client.query("BEGIN");
+
+    // 1️⃣ Add main product
+    const productResult = await client.query(
+      `INSERT INTO products (title, description, detailed_description, base_price, brand, wrist_size)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [title, description, detailed_description, base_price, brand, wrist_size]
     );
 
-    // Send success response
+    const product = productResult.rows[0];
+    const productId = product.id;
+
+    // 2️⃣ Upload main product images
+    if (req.files?.images) {
+      for (const file of req.files.images) {
+        await client.query(
+          `INSERT INTO product_images (product_id, image_url) VALUES ($1, $2)`,
+          [productId, `/uploads/${file.filename}`]
+        );
+      }
+    }
+
+    // 3️⃣ Colors
+    if (colors) {
+      const colorArray = JSON.parse(colors);
+      const colorImages = req.files?.colorImages || [];
+      for (let i = 0; i < colorArray.length; i++) {
+        const color = colorArray[i];
+        const imageFile = colorImages[i]?.filename
+          ? `/uploads/${colorImages[i].filename}`
+          : color.image || null;
+
+        await client.query(
+          `INSERT INTO product_colors (product_id, color_name, color_image_url, price_adjustment)
+           VALUES ($1, $2, $3, $4)`,
+          [productId, color.name, imageFile, color.price_adjustment || 0]
+        );
+      }
+    }
+
+    // 4️⃣ Back Types
+    if (backs) {
+      const backArray = JSON.parse(backs);
+      const backImages = req.files?.backImages || [];
+      for (let i = 0; i < backArray.length; i++) {
+        const back = backArray[i];
+        const imageFile = backImages[i]?.filename
+          ? `/uploads/${backImages[i].filename}`
+          : back.image || null;
+
+        await client.query(
+          `INSERT INTO product_back_types (product_id, type_name, image_url, price_adjustment)
+           VALUES ($1, $2, $3, $4)`,
+          [productId, back.name, imageFile, back.price_adjustment || 0]
+        );
+      }
+    }
+
+    // 5️⃣ Wrists
+    if (wrists) {
+      const wristArray = JSON.parse(wrists);
+      const wristImages = req.files?.wristImages || [];
+      for (let i = 0; i < wristArray.length; i++) {
+        const wrist = wristArray[i];
+        const imageFile = wristImages[i]?.filename
+          ? `/uploads/${wristImages[i].filename}`
+          : wrist.image || null;
+
+        await client.query(
+          `INSERT INTO product_wrists (product_id, wrist_style, image_url, price_adjustment)
+           VALUES ($1, $2, $3, $4)`,
+          [productId, wrist.name, imageFile, wrist.price_adjustment || 0]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+
     res.status(201).json({
-      message: "Product added successfully",
-      product: result.rows[0],
+      message: "✅ Product added successfully",
+      product,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" }); // Handle server errors
+    await client.query("ROLLBACK");
+    console.error("Add Product Error:", err);
+    res.status(500).json({ error: "Server error" });
+  } finally {
+    client.release();
   }
 };
+
+
+// ---------------------- Get Product by ID ---------------------
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `
+      SELECT 
+        p.*,
+        COALESCE(json_agg(DISTINCT pi.image_url) FILTER (WHERE pi.id IS NOT NULL), '[]') AS images,
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pc.id, 'name', pc.color_name, 'image', pc.color_image_url, 'extra', pc.price_adjustment)) FILTER (WHERE pc.id IS NOT NULL), '[]') AS colors,
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pb.id, 'name', pb.type_name, 'image', pb.image_url, 'extra', pb.price_adjustment)) FILTER (WHERE pb.id IS NOT NULL), '[]') AS back_types,
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pw.id, 'name', pw.wrist_style, 'image', pw.image_url, 'extra', pw.price_adjustment)) FILTER (WHERE pw.id IS NOT NULL), '[]') AS wrists
+      FROM products p
+      LEFT JOIN product_images pi ON p.id = pi.product_id
+      LEFT JOIN product_colors pc ON p.id = pc.product_id
+      LEFT JOIN product_back_types pb ON p.id = pb.product_id
+      LEFT JOIN product_wrists pw ON p.id = pw.product_id
+      WHERE p.id = $1
+      GROUP BY p.id
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: "Product not found" });
+
+    res.json({ product: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 
 // ----------------- Delete Product (Admin only) -----------------
 export const deleteProduct = async (req, res) => {
@@ -69,16 +201,26 @@ export const deleteProduct = async (req, res) => {
 // -------------------- Fetch All Products ----------------------
 export const allProducts = async (req, res) => {
   try {
-    // Fetch all products from database
-    const result = await pool.query("SELECT * FROM products");
+    const result = await pool.query(`
+      SELECT 
+        p.*, 
+        COALESCE(
+          json_agg(DISTINCT pi.image_url) FILTER (WHERE pi.image_url IS NOT NULL),
+          '[]'
+        ) AS images
+      FROM products p
+      LEFT JOIN product_images pi ON p.id = pi.product_id
+      GROUP BY p.id
+      ORDER BY p.created_at DESC;
+    `);
 
-    // Send response with all products
-    res.json({ products: result.rows });
+    res.status(200).json({ products: result.rows });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" }); // Handle server errors
+    console.error("❌ Error fetching all products:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
+
 
 // ----------------- Update Product (Admin only)------------------
 export const updateProduct = async (req, res) => {

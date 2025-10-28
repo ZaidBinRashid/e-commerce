@@ -6,29 +6,30 @@ const ProductsContext = createContext();
 export const ProductsProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // ✅ added
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/auth/allProducts", {
-        withCredentials: true,
-      })
-      .then((res) => {
-        if (Array.isArray(res.data.products)) {
-          setProducts(res.data.products);
-        } else {
-          console.error("Unexpected response format:", res.data);
-          setProducts([]);
+    let isMounted = true;
+
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/auth/allProducts");
+        if (isMounted) {
+          const data = res.data?.products;
+          setProducts(Array.isArray(data) ? data : []);
         }
-      })
-      .catch((err) => {
-        console.error("Failed to fetch products:", err);
-        setError("Failed to load products.");
-      })
-      .finally(() => setLoading(false));
+      } catch (err) {
+        if (isMounted) setError("Failed to load products.");
+        console.error(err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchProducts();
+    return () => { isMounted = false; };
   }, []);
 
-  // ✅ Provide all states for child components
   return (
     <ProductsContext.Provider value={{ products, setProducts, loading, error }}>
       {children}
@@ -36,5 +37,4 @@ export const ProductsProvider = ({ children }) => {
   );
 };
 
-// ✅ Custom Hook for easy access
 export const useProductContext = () => useContext(ProductsContext);

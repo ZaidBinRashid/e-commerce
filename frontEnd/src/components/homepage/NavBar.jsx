@@ -99,7 +99,7 @@ const Navbar = () => {
 
             <div className="flex items-center space-x-6 pt-2">
               <Link to="/account" onClick={() => setMenuOpen(false)}>
-                <img src="./icons/account.png" alt="user" className="w-6 h-6" />
+                <img src="/icons/account.png" alt="user" className="w-6 h-6" />
               </Link>
               <Link
                 to="/cart"
@@ -107,7 +107,7 @@ const Navbar = () => {
                 className="relative"
               >
                 <img
-                  src="./icons/shopping-bag.png"
+                  src="/icons/shopping-bag.png"
                   alt="cart"
                   className="w-6 h-6"
                 />

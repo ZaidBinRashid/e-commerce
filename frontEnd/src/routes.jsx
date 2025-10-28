@@ -19,7 +19,6 @@ import Testimonials from "./components/Testimonials/Testimonials";
 import AddTestimonials from "./components/Testimonials/AddTestimonials";
 import DeleteTestimonials from "./components/Testimonials/DeleteTestimonials";
 import UpdateProducts from "./components/Products/UpdateProducts";
-import DeleteProducts from "./components/Products/DeleteProducts";
 
 
 const routes = [
@@ -77,7 +76,6 @@ const routes = [
           { path: "allProducts", element: <AllProducts /> },
           { path: "addProducts", element: <AddProducts /> },
           { path: "updateProduct/:id", element: <UpdateProducts/>},
-          { path: "deleteProduct/:id", element: <DeleteProducts/>},
           { path: "analytics", element: <Analytics /> },
           { path: "addTestimonials", element: <AddTestimonials /> },
           { path: "deleteTestimonials", element: <DeleteTestimonials /> },
