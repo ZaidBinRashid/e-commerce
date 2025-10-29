@@ -81,9 +81,21 @@ export default function AddProducts() {
       images.forEach((img) => formData.append("images", img));
 
       // ✅ Colors, backs, wrists
-      colors.forEach((c) => formData.append("colorImages", c.image));
-      backs.forEach((b) => formData.append("backImages", b.image));
-      wrists.forEach((w) => formData.append("wristImages", w.image));
+      // ✅ 1. Send the JSON data for colors, backs, wrists
+      formData.append("colors", JSON.stringify(colors));
+      formData.append("backs", JSON.stringify(backs));
+      formData.append("wrists", JSON.stringify(wrists));
+
+      // ✅ 2. Send corresponding images in order
+      colors.forEach((c) => {
+        if (c.image) formData.append("colorImages", c.image);
+      });
+      backs.forEach((b) => {
+        if (b.image) formData.append("backImages", b.image);
+      });
+      wrists.forEach((w) => {
+        if (w.image) formData.append("wristImages", w.image);
+      });
 
       const res = await axios.post(
         "http://localhost:8080/api/auth/addProduct",

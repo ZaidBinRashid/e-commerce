@@ -1,81 +1,302 @@
+// import { useState, useEffect } from "react";
+// import axios from "axios";
+// import * as Yup from "yup";
+// import { useParams, useNavigate } from "react-router-dom";
+// import { useProductContext } from "../../auth/ProductContext";
+
+// // ✅ Validation only for fields user edits
+// const ProductSchema = Yup.object().shape({
+//   title: Yup.string().min(3).max(50),
+//   description: Yup.string().min(3).max(200),
+//   detailed_description: Yup.string().min(5),
+//   base_price: Yup.number().min(1, "Base price must be positive"),
+//   brand: Yup.string(),
+//   wrist_size: Yup.string(),
+//   is_new: Yup.boolean(),
+// });
+
+// export default function UpdateProducts() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+//   const { products, setProducts } = useProductContext();
+
+//   const [form, setForm] = useState({
+//     title: "",
+//     description: "",
+//     price: "",
+//     is_new: false,
+//   });
+//   const [image, setImage] = useState(null);
+//   const [preview, setPreview] = useState(null);
+//   const [loading, setLoading] = useState(false);
+//   const [errors, setErrors] = useState({});
+
+//   // ✅ Fetch product from context or backend
+//   useEffect(() => {
+//     const existingProduct = products.find((p) => p.id === Number(id));
+
+//     if (existingProduct) {
+//       setForm({
+//         title: existingProduct.title,
+//         description: existingProduct.description,
+//         price: existingProduct.price,
+//         is_new: existingProduct.is_new,
+//       });
+//       setPreview(existingProduct.image_url);
+//     } else {
+//       // fallback fetch if context empty
+//       axios
+//         .get(`http://localhost:8080/api/auth/product/${id}`, {
+//           withCredentials: true,
+//         })
+//         .then((res) => {
+//           setForm({
+//             title: res.data.product.title,
+//             description: res.data.product.description,
+//             price: res.data.product.price,
+//             is_new: res.data.product.is_new,
+//           });
+//           setPreview(res.data.product.image_url);
+//         })
+//         .catch((err) => console.error("Error fetching product:", err));
+//     }
+//   }, [id, products]);
+
+//   // ✅ Handle input changes
+//   const handleChange = (e) => {
+//     const { name, value, type, checked } = e.target;
+//     setForm((prev) => ({
+//       ...prev,
+//       [name]: type === "checkbox" ? checked : value,
+//     }));
+//   };
+
+//   // ✅ Image upload handler
+//   const handleFileChange = (e) => {
+//     const file = e.target.files[0];
+//     setImage(file);
+//     if (file) setPreview(URL.createObjectURL(file));
+//   };
+
+//   // ✅ Form submit handler
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setErrors({});
+//     setLoading(true);
+
+//     try {
+//       await ProductSchema.validate(form, { abortEarly: false });
+
+//       const formData = new FormData();
+//       Object.entries(form).forEach(([key, value]) => {
+//         if (value !== "" && value !== null && value !== undefined) {
+//           formData.append(key, value);
+//         }
+//       });
+//       if (image) formData.append("image", image);
+
+//       const res = await axios.put(
+//         `http://localhost:8080/api/auth/product/${id}`,
+//         formData,
+//         {
+//           withCredentials: true,
+//           headers: { "Content-Type": "multipart/form-data" },
+//         }
+//       );
+
+//       alert("✅ Product updated successfully!");
+//       // update context
+//       setProducts((prev) =>
+//         prev.map((p) =>
+//           p.id === Number(id) ? { ...p, ...res.data.updatedProduct } : p
+//         )
+//       );
+//       navigate("/adminDashboard/allproducts");
+//     } catch (err) {
+//       if (err.inner) {
+//         const formErrors = {};
+//         err.inner.forEach((e) => (formErrors[e.path] = e.message));
+//         setErrors(formErrors);
+//       } else {
+//         console.error(err);
+//         alert("❌ Failed to update product");
+//       }
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <form
+//       onSubmit={handleSubmit}
+//       className="space-y-4 max-w-md mx-auto bg-white p-6 rounded-lg shadow-md mt-8"
+//     >
+//       <h2 className="text-xl font-semibold mb-4 text-center">Edit Product</h2>
+
+//       <input
+//         type="text"
+//         name="title"
+//         placeholder="Title"
+//         value={form.title}
+//         onChange={handleChange}
+//         className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+//       />
+//       {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
+
+//       <textarea
+//         name="description"
+//         placeholder="Description"
+//         value={form.description}
+//         onChange={handleChange}
+//         className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+//       />
+//       {errors.description && (
+//         <p className="text-xs text-red-500">{errors.description}</p>
+//       )}
+
+//       <input
+//         type="number"
+//         name="price"
+//         placeholder="Price"
+//         value={form.price}
+//         onChange={handleChange}
+//         className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+//       />
+//       {errors.price && <p className="text-xs text-red-500">{errors.price}</p>}
+
+//       {/* ✅ New Arrival Toggle */}
+//       <label className="flex items-center gap-2">
+//         <input
+//           type="checkbox"
+//           name="is_new"
+//           checked={form.is_new}
+//           onChange={handleChange}
+//         />
+//         {form.is_new ? "Remove from New Arrivals" : "Mark as New Arrival"}
+//       </label>
+
+//       {preview && (
+//         <img
+//           src={preview}
+//           alt="preview"
+//           className="w-40 h-40 object-cover rounded mb-2"
+//         />
+//       )}
+
+//       <input type="file" onChange={handleFileChange} />
+//       {errors.image && <p className="text-xs text-red-500">{errors.image}</p>}
+
+//       <button
+//         type="submit"
+//         disabled={loading}
+//         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+//       >
+//         {loading ? "Updating..." : "Update Product"}
+//       </button>
+//     </form>
+//   );
+// }
+
 import { useState, useEffect } from "react";
 import axios from "axios";
-import * as Yup from "yup";
 import { useParams, useNavigate } from "react-router-dom";
-import { useProductContext } from "../../auth/ProductContext";
+import * as Yup from "yup";
 
-// ✅ Validation only for fields user edits
 const ProductSchema = Yup.object().shape({
   title: Yup.string().min(3).max(50),
   description: Yup.string().min(3).max(200),
-  price: Yup.number().min(1, "Price must be positive"),
-  is_new: Yup.boolean(),
+  detailed_description: Yup.string().min(10),
+  base_price: Yup.number().min(1, "Price must be positive"),
+  brand: Yup.string(),
+  wrist_size: Yup.string(),
 });
 
 export default function UpdateProducts() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, setProducts } = useProductContext();
 
   const [form, setForm] = useState({
     title: "",
     description: "",
-    price: "",
-    is_new: false,
+    detailed_description: "",
+    base_price: "",
+    brand: "",
+    wrist_size: "",
   });
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState([]);
+  const [preview, setPreview] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [backs, setBacks] = useState([]);
+  const [wrists, setWrists] = useState([]);
+
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch product from context or backend
+  // ✅ Fetch existing product
   useEffect(() => {
-    const existingProduct = products.find((p) => p.id === Number(id));
+    axios
+      .get(`http://localhost:8080/api/auth/product/${id}`)
+      .then((res) => {
+        const data = res.data.product;
+        setForm({
+          title: data.title,
+          description: data.description,
+          detailed_description: data.detailed_description,
+          base_price: data.base_price,
+          brand: data.brand,
+          wrist_size: data.wrist_size,
+        });
 
-    if (existingProduct) {
-      setForm({
-        title: existingProduct.title,
-        description: existingProduct.description,
-        price: existingProduct.price,
-        is_new: existingProduct.is_new,
-      });
-      setPreview(existingProduct.image_url);
-    } else {
-      // fallback fetch if context empty
-      axios
-        .get(`http://localhost:8080/api/auth/product/${id}`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setForm({
-            title: res.data.product.title,
-            description: res.data.product.description,
-            price: res.data.product.price,
-            is_new: res.data.product.is_new,
-          });
-          setPreview(res.data.product.image_url);
-        })
-        .catch((err) => console.error("Error fetching product:", err));
-    }
-  }, [id, products]);
+        // ✅ Handle both existing DB images and new uploads
+        if (data.images && data.images.length > 0) {
+          // Ensure URLs are complete (in case backend sends relative paths)
+          const fullUrls = data.images.map((img) =>
+            img.image_url?.startsWith("http")
+              ? img.image_url
+              : `http://localhost:8080${img.image_url}`
+          );
+          setPreview(fullUrls);
+        }
 
-  // ✅ Handle input changes
+        setColors(data.colors || []);
+        setBacks(data.backs || []);
+        setWrists(data.wrists || []);
+      })
+      .catch((err) => console.error("❌ Failed to fetch product:", err));
+  }, [id]);
+
+  // ✅ Input change handler
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Image upload handler
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);
-    if (file) setPreview(URL.createObjectURL(file));
+  // ✅ Handle new image uploads (adds to preview)
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(files);
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setPreview((prev) => [...prev, ...newPreviews]); // ← append instead of replace
   };
 
-  // ✅ Form submit handler
+  // ✅ Helper functions to add/remove options
+  const addColor = () =>
+    setColors([...colors, { name: "", price_adjustment: "", image: null }]);
+  const addBack = () =>
+    setBacks([...backs, { name: "", price_adjustment: "", image: null }]);
+  const addWrist = () =>
+    setWrists([...wrists, { name: "", price_adjustment: "", image: null }]);
+
+  const handleSubChange = (setter, index, field, value) => {
+    setter((prev) => {
+      const updated = [...prev];
+      updated[index][field] = value;
+      return updated;
+    });
+  };
+
+  // ✅ Submit updates
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -86,11 +307,27 @@ export default function UpdateProducts() {
 
       const formData = new FormData();
       Object.entries(form).forEach(([key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
-          formData.append(key, value);
-        }
+        if (value !== "" && value !== null) formData.append(key, value);
       });
-      if (image) formData.append("image", image);
+
+      // Images
+      images.forEach((img) => formData.append("images", img));
+
+      // Customizations
+      formData.append("colors", JSON.stringify(colors));
+      colors.forEach((c) => {
+        if (c.image) formData.append("colorImages", c.image);
+      });
+
+      formData.append("backs", JSON.stringify(backs));
+      backs.forEach((b) => {
+        if (b.image) formData.append("backImages", b.image);
+      });
+
+      formData.append("wrists", JSON.stringify(wrists));
+      wrists.forEach((w) => {
+        if (w.image) formData.append("wristImages", w.image);
+      });
 
       const res = await axios.put(
         `http://localhost:8080/api/auth/product/${id}`,
@@ -102,12 +339,7 @@ export default function UpdateProducts() {
       );
 
       alert("✅ Product updated successfully!");
-      // update context
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === Number(id) ? { ...p, ...res.data.updatedProduct } : p
-        )
-      );
+      console.log(res.data);
       navigate("/adminDashboard/allproducts");
     } catch (err) {
       if (err.inner) {
@@ -116,7 +348,7 @@ export default function UpdateProducts() {
         setErrors(formErrors);
       } else {
         console.error(err);
-        alert("❌ Failed to update product");
+        alert("❌ Update failed");
       }
     } finally {
       setLoading(false);
@@ -126,67 +358,215 @@ export default function UpdateProducts() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 max-w-md mx-auto bg-white p-6 rounded-lg shadow-md mt-8"
+      className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8 space-y-6"
     >
-      <h2 className="text-xl font-semibold mb-4 text-center">Edit Product</h2>
+      <h2 className="text-2xl font-semibold text-center">Edit Product</h2>
 
-      <input
-        type="text"
-        name="title"
-        placeholder="Title"
-        value={form.title}
-        onChange={handleChange}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-      />
-      {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
+      {/* Basic Fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <input
+          name="title"
+          value={form.title}
+          onChange={handleChange}
+          placeholder="Title"
+          className="border rounded px-3 py-2"
+        />
+        <input
+          name="brand"
+          value={form.brand}
+          onChange={handleChange}
+          placeholder="Brand"
+          className="border rounded px-3 py-2"
+        />
+        <input
+          name="wrist_size"
+          value={form.wrist_size}
+          onChange={handleChange}
+          placeholder="Wrist Size"
+          className="border rounded px-3 py-2"
+        />
+        <input
+          type="number"
+          name="base_price"
+          value={form.base_price}
+          onChange={handleChange}
+          placeholder="Base Price"
+          className="border rounded px-3 py-2"
+        />
+      </div>
 
       <textarea
         name="description"
-        placeholder="Description"
         value={form.description}
         onChange={handleChange}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+        placeholder="Short Description"
+        className="w-full border rounded px-3 py-2"
       />
-      {errors.description && (
-        <p className="text-xs text-red-500">{errors.description}</p>
-      )}
 
-      <input
-        type="number"
-        name="price"
-        placeholder="Price"
-        value={form.price}
+      <textarea
+        name="detailed_description"
+        value={form.detailed_description}
         onChange={handleChange}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+        placeholder="Detailed Description"
+        className="w-full border rounded px-3 py-2"
       />
-      {errors.price && <p className="text-xs text-red-500">{errors.price}</p>}
 
-      {/* ✅ New Arrival Toggle */}
-      <label className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          name="is_new"
-          checked={form.is_new}
-          onChange={handleChange}
-        />
-        {form.is_new ? "Remove from New Arrivals" : "Mark as New Arrival"}
-      </label>
+      {/* Product Images */}
+      <label className="block font-semibold">Product Images:</label>
+      <input type="file" multiple onChange={handleImageChange} />
 
-      {preview && (
-        <img
-          src={preview}
-          alt="preview"
-          className="w-40 h-40 object-cover rounded mb-2"
-        />
-      )}
+      <div className="flex flex-wrap gap-3 mt-3">
+        {preview.length > 0 ? (
+          preview.map((img, i) => (
+            <img
+              key={i}
+              src={img}
+              alt={`Product ${i}`}
+              className="w-24 h-24 object-cover rounded shadow"
+            />
+          ))
+        ) : (
+          <p className="text-sm text-gray-500">No images uploaded yet</p>
+        )}
+      </div>
 
-      <input type="file" onChange={handleFileChange} />
-      {errors.image && <p className="text-xs text-red-500">{errors.image}</p>}
+      {/* Colors */}
+      <div>
+        <h3 className="font-semibold mb-2">Colors</h3>
+        {colors.map((color, index) => (
+          <div key={index} className="border rounded p-3 mb-2">
+            <input
+              value={color.name}
+              placeholder="Color Name"
+              onChange={(e) =>
+                handleSubChange(setColors, index, "name", e.target.value)
+              }
+              className="border rounded px-2 py-1 w-full mb-2"
+            />
+            <input
+              type="number"
+              value={color.price_adjustment}
+              placeholder="Price Adjustment"
+              onChange={(e) =>
+                handleSubChange(
+                  setColors,
+                  index,
+                  "price_adjustment",
+                  e.target.value
+                )
+              }
+              className="border rounded px-2 py-1 w-full mb-2"
+            />
+            <input
+              type="file"
+              onChange={(e) =>
+                handleSubChange(setColors, index, "image", e.target.files[0])
+              }
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addColor}
+          className="bg-blue-500 text-white px-3 py-1 rounded"
+        >
+          + Add Color
+        </button>
+      </div>
 
+      {/* Backs */}
+      <div>
+        <h3 className="font-semibold mb-2">Back Types</h3>
+        {backs.map((back, index) => (
+          <div key={index} className="border rounded p-3 mb-2">
+            <input
+              value={back.name}
+              placeholder="Back Type"
+              onChange={(e) =>
+                handleSubChange(setBacks, index, "name", e.target.value)
+              }
+              className="border rounded px-2 py-1 w-full mb-2"
+            />
+            <input
+              type="number"
+              value={back.price_adjustment}
+              placeholder="Price Adjustment"
+              onChange={(e) =>
+                handleSubChange(
+                  setBacks,
+                  index,
+                  "price_adjustment",
+                  e.target.value
+                )
+              }
+              className="border rounded px-2 py-1 w-full mb-2"
+            />
+            <input
+              type="file"
+              onChange={(e) =>
+                handleSubChange(setBacks, index, "image", e.target.files[0])
+              }
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addBack}
+          className="bg-blue-500 text-white px-3 py-1 rounded"
+        >
+          + Add Back Type
+        </button>
+      </div>
+
+      {/* Wrists */}
+      <div>
+        <h3 className="font-semibold mb-2">Wrist Styles</h3>
+        {wrists.map((wrist, index) => (
+          <div key={index} className="border rounded p-3 mb-2">
+            <input
+              value={wrist.name}
+              placeholder="Wrist Style"
+              onChange={(e) =>
+                handleSubChange(setWrists, index, "name", e.target.value)
+              }
+              className="border rounded px-2 py-1 w-full mb-2"
+            />
+            <input
+              type="number"
+              value={wrist.price_adjustment}
+              placeholder="Price Adjustment"
+              onChange={(e) =>
+                handleSubChange(
+                  setWrists,
+                  index,
+                  "price_adjustment",
+                  e.target.value
+                )
+              }
+              className="border rounded px-2 py-1 w-full mb-2"
+            />
+            <input
+              type="file"
+              onChange={(e) =>
+                handleSubChange(setWrists, index, "image", e.target.files[0])
+              }
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addWrist}
+          className="bg-blue-500 text-white px-3 py-1 rounded"
+        >
+          + Add Wrist Style
+        </button>
+      </div>
+
+      {/* Submit */}
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        className="w-full bg-indigo-600 text-white py-2 rounded mt-4"
       >
         {loading ? "Updating..." : "Update Product"}
       </button>

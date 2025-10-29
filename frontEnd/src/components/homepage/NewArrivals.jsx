@@ -1,6 +1,7 @@
 import { useProductContext } from "../../auth/ProductContext";
 import BlurText from "../UI/BlurText";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const handleAnimationComplete = () => {
   console.log("Animation completed!");
@@ -57,7 +58,7 @@ export default function NewArrivals() {
           {newArrivals.map((product) => (
             <div
               key={product.id}
-              className="bg-white  p-4 shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              className="bg-white  p-4 shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 w-64"
             >
               {product.images && product.images.length > 0 && (
               <img
@@ -80,9 +81,13 @@ export default function NewArrivals() {
                 </p>
                 <p className="text-black font-bold mt-3">₹{product.base_price}</p>
 
-                <button className="mt-4 w-full bg-slate-800 hover:bg-slate-600 text-white font-medium py-2  transition">
-                  View Details
-                </button>
+                 <div className="mt-3 flex flex-wrap gap-2">
+                  <Link to={`/product/${product.id}`}>
+                    <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded w-full sm:w-auto">
+                      More Details
+                    </button>
+                  </Link>
+                </div>
               </div>
             </div>
           ))}

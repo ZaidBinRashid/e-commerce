@@ -18,7 +18,7 @@ router.get("/allProducts", allProducts)
 router.post("/addProduct", authMiddleware,adminMiddleware,upload,addProduct);
 router.get("/product/:id", getProductById);
 router.delete("/product/:id", authMiddleware,adminMiddleware, deleteProduct)
-// router.put("/product/:id", authMiddleware,adminMiddleware, upload.single("image"), updateProduct)
+router.put("/product/:id", authMiddleware,adminMiddleware, upload, updateProduct)
 
 //----------- Testimonials Routes ----------
 router.post("/addTestimonials",addTestimonials)

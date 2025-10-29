@@ -19,7 +19,7 @@ import Testimonials from "./components/Testimonials/Testimonials";
 import AddTestimonials from "./components/Testimonials/AddTestimonials";
 import DeleteTestimonials from "./components/Testimonials/DeleteTestimonials";
 import UpdateProducts from "./components/Products/UpdateProducts";
-
+import ProductDetails from "./components/Products/ProductDetails";
 
 const routes = [
   {
@@ -64,6 +64,11 @@ const routes = [
         path: "logIn",
         element: <LoginForm />,
       },
+       {
+        path: "product/:id",
+        element: <ProductDetails />,
+      },
+
       {
         path: "adminDashboard",
         element: (
