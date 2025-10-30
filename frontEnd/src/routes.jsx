@@ -77,7 +77,7 @@ const routes = [
           </AdminRoute>
         ),
          children: [
-          { index: true, element: <p className="text-white text-center">Welcome to the Admin Dashboard</p> },
+          { index: true , element: <AllProducts /> },
           { path: "allProducts", element: <AllProducts /> },
           { path: "addProducts", element: <AddProducts /> },
           { path: "updateProduct/:id", element: <UpdateProducts/>},
