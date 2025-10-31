@@ -1,13 +1,28 @@
-import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { HiMenu, HiX } from "react-icons/hi";
-import { CiSearch } from "react-icons/ci";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
+  // const [itemCount, setItemCount] = useState(0);
 
+  // useEffect(() => {
+  //   const updateCartCount = () => {
+  //     const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  //     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  //     setItemCount(totalItems);
+  //   };
+
+  //   // Initial count
+  //   updateCartCount();
+
+  //   // Listen for storage changes
+  //   window.addEventListener('cartUpdated', updateCartCount);
+
+  //   return () => {
+  //     window.removeEventListener('cartUpdated', updateCartCount);
+  //   };
+  // }, []);
 
   return (
     <nav className="w-full bg-white shadow-sm ">
@@ -47,9 +62,9 @@ const Navbar = () => {
 
           <Link to="/cart" className="relative">
             <img src="/icons/shopping-bag.png" alt="cart" className="w-6 h-6" />
-            <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              0
-            </span>
+            {/* <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              {itemCount}
+            </span> */}
           </Link>
         </div>
 
@@ -111,9 +126,9 @@ const Navbar = () => {
                   alt="cart"
                   className="w-6 h-6"
                 />
-                <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  0
-                </span>
+                {/* <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  {itemCount}
+                </span> */}
               </Link>
             </div>
           </div>

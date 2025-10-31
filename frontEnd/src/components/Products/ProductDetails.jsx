@@ -6,6 +6,8 @@ export default function ProductDetails() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [addedMessage, setAddedMessage] = useState("");
   const [selectedOptions, setSelectedOptions] = useState({
     color: null,
     back: null,
@@ -18,7 +20,9 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/auth/product/${id}`);
+        const res = await axios.get(
+          `http://localhost:8080/api/auth/product/${id}`
+        );
         setProduct(res.data.product);
         setSelectedImage(`http://localhost:8080${res.data.product.images[0]}`);
         setTotalPrice(Number(res.data.product.base_price));
@@ -45,9 +49,9 @@ export default function ProductDetails() {
 
     const newPrice =
       Number(product.base_price) +
-      (selectedOptions.color?.extra || 0) +
-      (selectedOptions.back?.extra || 0) +
-      (selectedOptions.wrist?.extra || 0);
+      (selectedOptions.color?.price_adjustment || 0) +
+      (selectedOptions.back?.price_adjustment || 0) +
+      (selectedOptions.wrist?.price_adjustment || 0);
 
     setTotalPrice(newPrice);
   }, [selectedOptions, product]);
@@ -55,20 +59,45 @@ export default function ProductDetails() {
   // ✅ Add to Cart
   const handleAddToCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const newItem = {
-      id: product.id,
-      title: product.title,
-      base_price: product.base_price,
-      total_price: totalPrice,
-      selectedOptions,
-      image: selectedImage,
-    };
-    localStorage.setItem("cart", JSON.stringify([...cart, newItem]));
-    alert("✅ Product added to cart!");
+
+    // Find same item (same id + same customizations)
+    const existingItemIndex = cart.findIndex(
+      (item) =>
+        item.id === product.id &&
+        JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions)
+    );
+
+    if (existingItemIndex >= 0) {
+      // If exists → update quantity
+      cart[existingItemIndex].quantity += quantity;
+    } else {
+      // Else → add new item
+      const newItem = {
+        id: product.id,
+        title: product.title,
+        base_price: product.base_price,
+        total_price: totalPrice,
+        selectedOptions,
+        image: selectedImage,
+        quantity, // ✅ added
+      };
+      cart.push(newItem);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event("cartUpdated"));
+    setAddedMessage("✅ Added to cart!");
+    setTimeout(() => setAddedMessage(""), 2000);
   };
 
-  if (loading) return <p className="text-center text-gray-600 mt-10">Loading product...</p>;
-  if (!product) return <p className="text-center text-gray-600 mt-10">Product not found.</p>;
+  if (loading)
+    return (
+      <p className="text-center text-gray-600 mt-10">Loading product...</p>
+    );
+  if (!product)
+    return (
+      <p className="text-center text-gray-600 mt-10">Product not found.</p>
+    );
 
   return (
     <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-10 text-gray-800">
@@ -101,17 +130,23 @@ export default function ProductDetails() {
       </div>
 
       {/* -------- Right: Product Info -------- */}
-      <div  >
+      <div>
         <h1 className="text-3xl font-medium mb-3 mt-4 pl-1">{product.title}</h1>
         <div className=" bg-slate-800 text-white p-4 rounded-2xl">
-        <p className="mb-4">{product.detailed_description}</p>
-        <p className="text-lg font-medium mb-3">Brand: <span className="text-lg font-normal mb-3">{product.brand}</span></p>
-        <p className="text-lg font-medium mb-3">Wrist Size: <span className="text-lg font-normal mb-3">{product.wrist_size}</span></p>
-
+          <p className="mb-4">{product.detailed_description}</p>
+          <p className="text-lg font-medium mb-3">
+            Brand:{" "}
+            <span className="text-lg font-normal mb-3">{product.brand}</span>
+          </p>
+          <p className="text-lg font-medium mb-3">
+            Wrist Size:{" "}
+            <span className="text-lg font-normal mb-3">
+              {product.wrist_size}
+            </span>
+          </p>
         </div>
         <div className="my-2 bg-amber-400 text-center px-4 py-2 rounded-3xl">
-
-        <p className=" text-2xl font-medium">Customize</p>
+          <p className=" text-2xl font-medium">Customize</p>
         </div>
         {/* ---------- Colors ---------- */}
         {product.colors?.length > 0 && (
@@ -134,7 +169,9 @@ export default function ProductDetails() {
                     className="w-full h-20 object-cover rounded mb-1"
                   />
                   <p className="text-sm font-medium">{color.name}</p>
-                  <p className="text-xs text-gray-500">+₹{color.extra}</p>
+                  <p className="text-xs text-gray-500">
+                    +₹{color.price_adjustment}
+                  </p>
                 </div>
               ))}
             </div>
@@ -162,7 +199,9 @@ export default function ProductDetails() {
                     className="w-full h-20 object-cover rounded mb-1"
                   />
                   <p className="text-sm font-medium">{back.name}</p>
-                  <p className="text-xs text-gray-500">+₹{back.extra}</p>
+                  <p className="text-xs text-gray-500">
+                    +₹{back.price_adjustment}
+                  </p>
                 </div>
               ))}
             </div>
@@ -190,12 +229,39 @@ export default function ProductDetails() {
                     className="w-full h-20 object-cover rounded mb-1"
                   />
                   <p className="text-sm font-medium">{wrist.name}</p>
-                  <p className="text-xs text-gray-500">+₹{wrist.extra}</p>
+                  <p className="text-xs text-gray-500">
+                    +₹{wrist.price_adjustment}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* Quantity Selector */}
+        <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+            className="px-3 py-1 bg-gray-200 rounded text-lg font-bold"
+          >
+            −
+          </button>
+          <input
+            type="number"
+            value={quantity}
+            onChange={(e) =>
+              setQuantity(Math.max(1, parseInt(e.target.value) || 1))
+            }
+            className="w-16 text-center border rounded p-1"
+            min="1"
+          />
+          <button
+            onClick={() => setQuantity((prev) => prev + 1)}
+            className="px-3 py-1 bg-gray-200 rounded text-lg font-bold"
+          >
+            +
+          </button>
+        </div>
 
         <p className="text-xl font-semibold  mb-6">
           ₹{totalPrice.toLocaleString()}
@@ -208,6 +274,9 @@ export default function ProductDetails() {
         >
           Add to Cart
         </button>
+        {addedMessage && (
+          <p className="text-green-600 font-semibold mt-2">{addedMessage}</p>
+        )}
       </div>
     </div>
   );

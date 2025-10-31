@@ -20,7 +20,7 @@ export default function SignupForm() {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;

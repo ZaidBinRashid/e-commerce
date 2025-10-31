@@ -1,15 +1,15 @@
-import pool from "../db/pool.js"; // Import database connection pool
-import multer from "multer"; // Import multer for handling file uploads
-import path from "path"; // Import path module to work with file paths
+import pool from "../db/pool.js";
+import multer from "multer"; 
+
 
 // ------------------ Multer Configuration ------------------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + "-" + file.originalname),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
 });
 
-export const upload = multer({ storage,
+export const upload = multer({
+  storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
   fileFilter: (req, file, cb) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
@@ -24,7 +24,7 @@ export const upload = multer({ storage,
   { name: "colorImages", maxCount: 10 },
   { name: "backImages", maxCount: 10 },
   { name: "wristImages", maxCount: 10 },
- ]);
+]);
 
 // ------------------ Add Product (Admin only) ------------------
 export const addProduct = async (req, res) => {
@@ -138,7 +138,6 @@ export const addProduct = async (req, res) => {
   }
 };
 
-
 // ---------------------- Get Product by ID ---------------------
 export const getProductById = async (req, res) => {
   try {
@@ -149,9 +148,9 @@ export const getProductById = async (req, res) => {
       SELECT 
         p.*,
         COALESCE(json_agg(DISTINCT pi.image_url) FILTER (WHERE pi.id IS NOT NULL), '[]') AS images,
-        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pc.id, 'name', pc.color_name, 'image', pc.color_image_url, 'extra', pc.price_adjustment)) FILTER (WHERE pc.id IS NOT NULL), '[]') AS colors,
-        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pb.id, 'name', pb.type_name, 'image', pb.image_url, 'extra', pb.price_adjustment)) FILTER (WHERE pb.id IS NOT NULL), '[]') AS back_types,
-        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pw.id, 'name', pw.wrist_style, 'image', pw.image_url, 'extra', pw.price_adjustment)) FILTER (WHERE pw.id IS NOT NULL), '[]') AS wrists
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pc.id, 'name', pc.color_name, 'image', pc.color_image_url, 'price_adjustment', pc.price_adjustment)) FILTER (WHERE pc.id IS NOT NULL), '[]') AS colors,
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pb.id, 'name', pb.type_name, 'image', pb.image_url, 'price_adjustment', pb.price_adjustment)) FILTER (WHERE pb.id IS NOT NULL), '[]') AS back_types,
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', pw.id, 'name', pw.wrist_style, 'image', pw.image_url, 'price_adjustment', pw.price_adjustment)) FILTER (WHERE pw.id IS NOT NULL), '[]') AS wrists
       FROM products p
       LEFT JOIN product_images pi ON p.id = pi.product_id
       LEFT JOIN product_colors pc ON p.id = pc.product_id
@@ -172,7 +171,6 @@ export const getProductById = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-
 
 // ----------------- Delete Product (Admin only) -----------------
 export const deleteProduct = async (req, res) => {
@@ -221,13 +219,12 @@ export const allProducts = async (req, res) => {
   }
 };
 
-
 // ----------------- Update Product (Admin only)------------------
 export const updateProduct = async (req, res) => {
   const client = await pool.connect();
   try {
     const { id } = req.params;
-    const {
+    let {
       title,
       description,
       detailed_description,
@@ -237,10 +234,19 @@ export const updateProduct = async (req, res) => {
       colors,
       backs,
       wrists,
+      is_new,
     } = req.body;
 
+    if (typeof is_new === "string") {
+      is_new = is_new === "true";
+    }
+
+ 
     // check if product exists
-    const existing = await client.query("SELECT * FROM products WHERE id = $1", [id]);
+    const existing = await client.query(
+      "SELECT * FROM products WHERE id = $1",
+      [id]
+    );
     if (existing.rows.length === 0)
       return res.status(404).json({ error: "Product not found" });
 
@@ -254,15 +260,27 @@ export const updateProduct = async (req, res) => {
            detailed_description = COALESCE($3, detailed_description),
            base_price = COALESCE($4, base_price),
            brand = COALESCE($5, brand),
-           wrist_size = COALESCE($6, wrist_size)
-       WHERE id = $7
+           wrist_size = COALESCE($6, wrist_size),
+           is_new = COALESCE($7, is_new)
+       WHERE id = $8
        RETURNING *`,
-      [title, description, detailed_description, base_price, brand, wrist_size, id]
+      [
+        title,
+        description,
+        detailed_description,
+        base_price,
+        brand,
+        wrist_size,
+        is_new,
+        id,
+      ]
     );
 
     // ✅ 2. Replace product images if new ones uploaded
     if (req.files?.images?.length > 0) {
-      await client.query("DELETE FROM product_images WHERE product_id = $1", [id]);
+      await client.query("DELETE FROM product_images WHERE product_id = $1", [
+        id,
+      ]);
       for (const file of req.files.images) {
         await client.query(
           `INSERT INTO product_images (product_id, image_url) VALUES ($1, $2)`,
@@ -275,14 +293,15 @@ export const updateProduct = async (req, res) => {
     if (colors) {
       const colorArray = JSON.parse(colors);
       const colorImages = req.files?.colorImages || [];
-      await client.query("DELETE FROM product_colors WHERE product_id = $1", [id]);
+      await client.query("DELETE FROM product_colors WHERE product_id = $1", [
+        id,
+      ]);
 
       for (let i = 0; i < colorArray.length; i++) {
         const c = colorArray[i];
-        const imageFile =
-          colorImages[i]?.filename
-            ? `/uploads/${colorImages[i].filename}`
-            : c.image || null;
+        const imageFile = colorImages[i]?.filename
+          ? `/uploads/${colorImages[i].filename}`
+          : c.image || null;
 
         await client.query(
           `INSERT INTO product_colors (product_id, color_name, color_image_url, price_adjustment)
@@ -296,14 +315,16 @@ export const updateProduct = async (req, res) => {
     if (backs) {
       const backArray = JSON.parse(backs);
       const backImages = req.files?.backImages || [];
-      await client.query("DELETE FROM product_back_types WHERE product_id = $1", [id]);
+      await client.query(
+        "DELETE FROM product_back_types WHERE product_id = $1",
+        [id]
+      );
 
       for (let i = 0; i < backArray.length; i++) {
         const b = backArray[i];
-        const imageFile =
-          backImages[i]?.filename
-            ? `/uploads/${backImages[i].filename}`
-            : b.image || null;
+        const imageFile = backImages[i]?.filename
+          ? `/uploads/${backImages[i].filename}`
+          : b.image || null;
 
         await client.query(
           `INSERT INTO product_back_types (product_id, type_name, image_url, price_adjustment)
@@ -317,14 +338,15 @@ export const updateProduct = async (req, res) => {
     if (wrists) {
       const wristArray = JSON.parse(wrists);
       const wristImages = req.files?.wristImages || [];
-      await client.query("DELETE FROM product_wrists WHERE product_id = $1", [id]);
+      await client.query("DELETE FROM product_wrists WHERE product_id = $1", [
+        id,
+      ]);
 
       for (let i = 0; i < wristArray.length; i++) {
         const w = wristArray[i];
-        const imageFile =
-          wristImages[i]?.filename
-            ? `/uploads/${wristImages[i].filename}`
-            : w.image || null;
+        const imageFile = wristImages[i]?.filename
+          ? `/uploads/${wristImages[i].filename}`
+          : w.image || null;
 
         await client.query(
           `INSERT INTO product_wrists (product_id, wrist_style, image_url, price_adjustment)
@@ -348,53 +370,3 @@ export const updateProduct = async (req, res) => {
     client.release();
   }
 };
-
-// export const updateProduct = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     let { title, description, price, is_new } = req.body;
-
-//     // Convert is_new from string ("true"/"false") to boolean
-//     if (typeof is_new === "string") {
-//       is_new = is_new === "true";
-//     }
-
-//     // Check if product exists
-//     const existing = await pool.query("SELECT * FROM products WHERE id = $1", [id]);
-//     if (existing.rows.length === 0) {
-//       return res.status(404).json({ error: "Product not found" });
-//     }
-
-//     const current = existing.rows[0];
-
-//     // Use new image if uploaded, else keep old one
-//     let imageUrl = current.image_url;
-//     if (req.file) {
-//       imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-//     }
-
-//     // Optional: simple field validation
-//     if (!title || !description || !price) {
-//       return res.status(400).json({ error: "Title, description, and price are required" });
-//     }
-
-//     // Update product
-//     const result = await pool.query(
-//       `UPDATE products 
-//        SET title = $1, description = $2, price = $3, image_url = $4, is_new = $5 
-//        WHERE id = $6 
-//        RETURNING *`,
-//       [title, description, price, imageUrl, is_new, id]
-//     );
-
-//     // Send response
-//     res.json({
-//       message: " Product updated successfully",
-//       updatedProduct: result.rows[0],
-//     });
-//   } catch (err) {
-//     console.error(" Error updating product:", err);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// };
-
