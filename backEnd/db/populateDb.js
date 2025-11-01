@@ -66,6 +66,31 @@ const SQL = `
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
      );
 
+     CREATE TABLE IF NOT EXISTS orders (
+      id SERIAL PRIMARY KEY,
+      full_name VARCHAR(100) NOT NULL,
+      email VARCHAR(100) NOT NULL,
+      phone VARCHAR(20) NOT NULL,
+      address TEXT NOT NULL,
+      city VARCHAR(100) NOT NULL,
+      state VARCHAR(100) NOT NULL,
+      pincode VARCHAR(10) NOT NULL,
+      total_amount NUMERIC(10,2) NOT NULL,
+      shipping_charge NUMERIC(10,2) NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+     );
+
+    CREATE TABLE IF NOT EXISTS order_items (
+      id SERIAL PRIMARY KEY,
+      order_id INT REFERENCES orders(id) ON DELETE CASCADE,
+      product_id INT NOT NULL,
+      product_title VARCHAR(255),
+      quantity INT DEFAULT 1,
+      price NUMERIC(10,2),
+      selected_options JSONB,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
 `;
 
 async function main() {

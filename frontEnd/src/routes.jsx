@@ -20,6 +20,7 @@ import AddTestimonials from "./components/Testimonials/AddTestimonials";
 import DeleteTestimonials from "./components/Testimonials/DeleteTestimonials";
 import UpdateProducts from "./components/Products/UpdateProducts";
 import ProductDetails from "./components/Products/ProductDetails";
+import CheckOut from "./components/CheckOut/CheckOut"
 
 const routes = [
   {
@@ -67,6 +68,10 @@ const routes = [
        {
         path: "product/:id",
         element: <ProductDetails />,
+      },
+      {
+        path: "checkOut",
+        element: <CheckOut/>,
       },
 
       {

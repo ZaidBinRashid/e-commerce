@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom"
 
 export default function Cart() {
   const [cart, setCart] = useState([]);
@@ -139,9 +140,11 @@ export default function Cart() {
         <h3 className="text-2xl font-semibold">
           Grand Total: ₹{totalPrice.toLocaleString()}
         </h3>
+        <Link to="/checkOut">
         <button className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium">
           Proceed to Checkout
         </button>
+        </Link>
       </div>
     </div>
   );

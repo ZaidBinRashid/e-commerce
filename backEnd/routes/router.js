@@ -5,6 +5,7 @@ import { addTestimonials, testimonials, deleteTestimonial } from "../controllers
 import {authMiddleware, adminMiddleware} from "../middleware/authMiddleware.js";
 
 
+
 const router = express.Router();
 
 //----------- User Routes ----------
@@ -25,4 +26,4 @@ router.post("/addTestimonials",addTestimonials)
 router.get("/testimonials", testimonials)
 router.delete('/testimonial/:id', deleteTestimonial)
 
-export default router;
+export default router
