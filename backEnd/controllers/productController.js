@@ -235,12 +235,16 @@ export const updateProduct = async (req, res) => {
       backs,
       wrists,
       is_new,
+      in_stock,
     } = req.body;
 
     if (typeof is_new === "string") {
       is_new = is_new === "true";
     }
 
+     if (typeof in_stock === "string") {
+      in_stock = in_stock === "true";
+    }
  
     // check if product exists
     const existing = await client.query(
@@ -261,8 +265,9 @@ export const updateProduct = async (req, res) => {
            base_price = COALESCE($4, base_price),
            brand = COALESCE($5, brand),
            wrist_size = COALESCE($6, wrist_size),
-           is_new = COALESCE($7, is_new)
-       WHERE id = $8
+           is_new = COALESCE($7, is_new),
+           in_stock = COALESCE($8, in_stock)
+       WHERE id = $9
        RETURNING *`,
       [
         title,
@@ -272,6 +277,7 @@ export const updateProduct = async (req, res) => {
         brand,
         wrist_size,
         is_new,
+        in_stock,
         id,
       ]
     );

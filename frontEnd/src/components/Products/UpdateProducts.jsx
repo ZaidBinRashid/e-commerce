@@ -11,6 +11,7 @@ const ProductSchema = Yup.object().shape({
   brand: Yup.string(),
   wrist_size: Yup.string(),
   is_new: Yup.boolean(),
+  in_stock: Yup.boolean(),
 });
 
 export default function UpdateProducts() {
@@ -25,6 +26,7 @@ export default function UpdateProducts() {
     brand: "",
     wrist_size: "",
     is_new: false,
+    in_stock: false,
   });
 
   const [images, setImages] = useState([]);
@@ -51,6 +53,7 @@ export default function UpdateProducts() {
           brand: data.brand,
           wrist_size: data.wrist_size,
           is_new: data.is_new || false,
+          in_stock: data.in_stock || false,
         });
 
         if (data.images?.length > 0) {
@@ -178,6 +181,8 @@ export default function UpdateProducts() {
       <div className="flex items-center gap-2">
         <input type="checkbox" name="is_new" checked={!!form.is_new} onChange={handleChange} />
         <span>{form.is_new} Mark as New Arrival</span>
+        <input type="checkbox" name="in_stock" checked={!!form.in_stock} onChange={handleChange} />
+        <span>{form.in_stock} Mark as In Stock</span>
       </div>
 
       {/* Product Images */}

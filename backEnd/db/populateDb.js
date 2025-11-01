@@ -23,6 +23,7 @@ const SQL = `
     base_price NUMERIC(10, 2) NOT NULL,
     wrist_size VARCHAR(50) NOT NULL,
     is_new BOOLEAN DEFAULT TRUE,
+    in_stock BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 

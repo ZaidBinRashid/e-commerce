@@ -58,6 +58,8 @@ export default function ProductDetails() {
 
   // ✅ Add to Cart
   const handleAddToCart = () => {
+    if (!product.in_stock) return;
+
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
     // Find same item (same id + same customizations)
@@ -270,9 +272,14 @@ export default function ProductDetails() {
         {/* Add to Cart Button */}
         <button
           onClick={handleAddToCart}
-          className="w-full sm:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg"
+          disabled={!product.in_stock}
+          className={`mt-4 px-4 py-2 rounded text-white ${
+            product.in_stock
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
         >
-          Add to Cart
+          {product.in_stock ? "Add to Cart" : "Out of Stock"}
         </button>
         {addedMessage && (
           <p className="text-green-600 font-semibold mt-2">{addedMessage}</p>
