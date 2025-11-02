@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import {
   FaInstagram,
-  FaReddit,
   FaEnvelope,
   FaWhatsapp,
   FaClock,
@@ -16,24 +15,24 @@ export default function Contact() {
   return (
     <div className="bg-gray-50 min-h-[60vh] flex flex-col items-center justify-center px-6 py-16">
       {/* Heading Section */}
-      
-        <BlurText
-          text="Contact Us"
-          delay={150}
-          animateBy="words"
-          direction="top"
-          onAnimationComplete={handleAnimationComplete}
-          className="text-3xl mb-4 font-bold"
-        />
 
-        <BlurText
-          text="We’d love to help you find your next luxury timepiece."
-          delay={150}
-          animateBy="words"
-          direction="top"
-          onAnimationComplete={handleAnimationComplete}
-          className="text-xl mb-4 font-small"
-        />
+      <BlurText
+        text="Contact Us"
+        delay={150}
+        animateBy="words"
+        direction="top"
+        onAnimationComplete={handleAnimationComplete}
+        className="text-3xl mb-4 font-bold"
+      />
+
+      <BlurText
+        text="We’d love to help you find your next luxury timepiece."
+        delay={150}
+        animateBy="words"
+        direction="top"
+        onAnimationComplete={handleAnimationComplete}
+        className="text-xl mb-4 font-small"
+      />
 
       {/* Contact Info Section */}
       <motion.div
@@ -51,11 +50,11 @@ export default function Contact() {
             <div className="space-y-4 text-gray-600">
               <div className="flex items-center gap-3">
                 <FaEnvelope className="text-indigo-600 text-lg" />
-                <span>Email: support@yourbrand.com</span>
+                <span>Email: heritagewatchesco@gmail.com</span>
               </div>
               <div className="flex items-center gap-3">
                 <FaWhatsapp className="text-green-600 text-lg" />
-                <span>WhatsApp: +91 XXXXXXXX</span>
+                <span>WhatsApp: +91 9596990878</span>
               </div>
               <div className="flex items-center gap-3">
                 <FaClock className="text-indigo-600 text-lg" />
@@ -71,15 +70,7 @@ export default function Contact() {
             </h2>
             <div className="flex items-center justify-center md:justify-start gap-5 text-gray-700 text-2xl">
               <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-orange-600 transition"
-              >
-                <FaReddit />
-              </a>
-              <a
-                href="https://youtube.com"
+                href="https://chat.whatsapp.com/C3xbWjZZo250eVkLurvNgk?mode=wwt"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-green-600 transition"
@@ -87,7 +78,7 @@ export default function Contact() {
                 <FaWhatsapp />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://chat.whatsapp.com/C3xbWjZZo250eVkLurvNgk?mode=wwt"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-pink-500 transition"

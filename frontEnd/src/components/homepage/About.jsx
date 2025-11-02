@@ -75,7 +75,7 @@ export default function About() {
       </section>
 
       {/* Team Section */}
-      <section className="py-16 px-6 md:px-20 bg-gray-50">
+      {/* <section className="py-16 px-6 md:px-20 bg-gray-50">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-800 mb-12">Meet Our Team</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
@@ -114,10 +114,10 @@ export default function About() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
-      <section className="py-20 bg-slate-800 text-white text-center px-6">
+      <section className="py-20 bg-slate-700 text-white text-center px-6">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
