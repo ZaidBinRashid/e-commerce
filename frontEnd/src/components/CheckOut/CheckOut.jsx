@@ -24,7 +24,11 @@ export default function Checkout() {
   }, []);
 
   useEffect(() => {
-    const subtotal = cart.reduce((sum, item) => sum + (item.price ?? item.total_price ?? 0) * (item.quantity ?? 1), 0);
+    const subtotal = cart.reduce(
+      (sum, item) =>
+        sum + (item.price ?? item.total_price ?? 0) * (item.quantity ?? 1),
+      0
+    );
     const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 100;
     setShippingCharge(shipping);
     setTotal(subtotal + shipping);
@@ -47,7 +51,9 @@ export default function Checkout() {
   }, []);
 
   const handleProceedToPayment = async () => {
-    const allFilled = Object.values(shippingInfo).every((v) => v && v.toString().trim() !== "");
+    const allFilled = Object.values(shippingInfo).every(
+      (v) => v && v.toString().trim() !== ""
+    );
     if (!allFilled) {
       alert("Please fill all shipping details!");
       return;
@@ -59,12 +65,15 @@ export default function Checkout() {
 
     try {
       // 1) Create order on backend -> backend creates Razorpay order and saves local order
-      const createRes = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment/create-order`, {
-        ...shippingInfo,
-        cart,
-        total,
-        shippingCharge,
-      });
+      const createRes = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/payment/create-order`,
+        {
+          ...shippingInfo,
+          cart,
+          total,
+          shippingCharge,
+        }
+      );
 
       const { razorpay, orderId, key } = createRes.data;
       // razorpay: { id, amount, currency }
@@ -86,19 +95,58 @@ export default function Checkout() {
         handler: async function (response) {
           try {
             // send only required fields explicitly
-            const verifyRes = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment/verify`, {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
+            const verifyRes = await axios.post(
+              `${import.meta.env.VITE_API_URL}/api/payment/verify`,
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }
+            );
 
             if (verifyRes.data.success) {
-              // clear cart on successful verification
+              // Save order info (optional)
               localStorage.removeItem("cart");
-              // navigate to thank you page
-              navigate("/thankyou");
+
+              // Show popup message
+              const popup = document.createElement("div");
+              popup.className =
+                "fixed inset-0 flex items-center justify-center bg-slate-800 bg-opacity-50 z-50";
+              popup.innerHTML = `
+    <div class="bg-white rounded-2xl p-8 shadow-xl text-center max-w-sm w-full animate-fadeIn">
+      <svg xmlns="http://www.w3.org/2000/svg" 
+           class="w-14 h-14 text-green-500 mx-auto mb-3" 
+           fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
+      </svg>
+      <h2 class="text-xl font-semibold text-gray-800 mb-1">Thank you for shopping!</h2>
+      <p class="text-gray-600 mb-5">Your order has been placed successfully 🎉</p>
+      <p class="text-sm text-gray-500">Redirecting to home...</p>
+    </div>
+  `;
+              document.body.appendChild(popup);
+
+              // Animate fade-in
+              const style = document.createElement("style");
+              style.innerHTML = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+  `;
+              document.head.appendChild(style);
+
+              // Redirect after 3 seconds
+              setTimeout(() => {
+                popup.remove();
+                navigate("/");
+              }, 3000);
             } else {
-              alert("Payment verification failed: " + (verifyRes.data.message || ""));
+              alert("❌ Payment verification failed!");
             }
           } catch (err) {
             console.error("Verification error:", err);
@@ -117,28 +165,138 @@ export default function Checkout() {
   };
 
   return (
-    <div style={{ maxWidth: 900, margin: "40px auto", padding: 20 }}>
-      <h2>Checkout</h2>
+    <div className="max-w-3xl mx-auto my-10 p-6 bg-white shadow-lg rounded-2xl">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+        Checkout
+      </h2>
 
-      <div>
-        <input name="full_name" placeholder="Full name" value={shippingInfo.full_name} onChange={handleChange} />
-        <input name="email" placeholder="Email" value={shippingInfo.email} onChange={handleChange} />
-        <input name="phone" placeholder="Phone" value={shippingInfo.phone} onChange={handleChange} />
-        <input name="address" placeholder="Address" value={shippingInfo.address} onChange={handleChange} />
-        <input name="city" placeholder="City" value={shippingInfo.city} onChange={handleChange} />
-        <input name="state" placeholder="State" value={shippingInfo.state} onChange={handleChange} />
-        <input name="pincode" placeholder="Pincode" value={shippingInfo.pincode} onChange={handleChange} />
+      {/* Shipping Info */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <input
+          name="full_name"
+          placeholder="Full name"
+          value={shippingInfo.full_name}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <input
+          name="email"
+          placeholder="Email"
+          value={shippingInfo.email}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <input
+          name="phone"
+          placeholder="Phone"
+          value={shippingInfo.phone}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <input
+          name="address"
+          placeholder="Address"
+          value={shippingInfo.address}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:col-span-2"
+        />
+        <input
+          name="city"
+          placeholder="City"
+          value={shippingInfo.city}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+
+        {/* State Dropdown */}
+        <select
+          name="state"
+          value={shippingInfo.state}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">Select State</option>
+          {[
+            "Andhra Pradesh",
+            "Arunachal Pradesh",
+            "Assam",
+            "Bihar",
+            "Chhattisgarh",
+            "Goa",
+            "Gujarat",
+            "Haryana",
+            "Himachal Pradesh",
+            "Jharkhand",
+            "Karnataka",
+            "Kerala",
+            "Madhya Pradesh",
+            "Maharashtra",
+            "Manipur",
+            "Meghalaya",
+            "Mizoram",
+            "Nagaland",
+            "Odisha",
+            "Punjab",
+            "Rajasthan",
+            "Sikkim",
+            "Tamil Nadu",
+            "Telangana",
+            "Tripura",
+            "Uttar Pradesh",
+            "Uttarakhand",
+            "West Bengal",
+            "Andaman and Nicobar Islands",
+            "Chandigarh",
+            "Dadra and Nagar Haveli and Daman and Diu",
+            "Delhi",
+            "Jammu and Kashmir",
+            "Ladakh",
+            "Lakshadweep",
+            "Puducherry",
+          ].map((state) => (
+            <option key={state} value={state}>
+              {state}
+            </option>
+          ))}
+        </select>
+
+        <input
+          name="pincode"
+          placeholder="Pincode"
+          value={shippingInfo.pincode}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
       </div>
 
-      <div style={{ marginTop: 20 }}>
-        <h3>Order Summary</h3>
-        <p>Items: {cart.length}</p>
-        <p>Subtotal: ₹{(total - shippingCharge).toFixed(2)}</p>
-        <p>Shipping: ₹{shippingCharge}</p>
-        <p>Total: ₹{total.toFixed(2)}</p>
+      {/* Order Summary */}
+      <div className="mt-8 bg-gray-50 p-5 rounded-xl">
+        <h3 className="text-lg font-semibold text-gray-700 mb-4">
+          Order Summary
+        </h3>
+        <div className="flex justify-between text-gray-600 mb-2">
+          <span>Items</span>
+          <span>{cart.length}</span>
+        </div>
+        <div className="flex justify-between text-gray-600 mb-2">
+          <span>Subtotal</span>
+          <span>₹{(total - shippingCharge).toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between text-gray-600 mb-2">
+          <span>Shipping</span>
+          <span>₹{shippingCharge}</span>
+        </div>
+        <div className="flex justify-between text-gray-900 font-semibold text-lg mt-3">
+          <span>Total</span>
+          <span>₹{total.toFixed(2)}</span>
+        </div>
       </div>
 
-      <button onClick={handleProceedToPayment} style={{ marginTop: 20 }}>
+      {/* Proceed Button */}
+      <button
+        onClick={handleProceedToPayment}
+        className="w-full mt-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors duration-300"
+      >
         Proceed to Payment
       </button>
     </div>

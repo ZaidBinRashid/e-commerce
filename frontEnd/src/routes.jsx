@@ -21,7 +21,7 @@ import DeleteTestimonials from "./components/Testimonials/DeleteTestimonials";
 import UpdateProducts from "./components/Products/UpdateProducts";
 import ProductDetails from "./components/Products/ProductDetails";
 import CheckOut from "./components/CheckOut/CheckOut";
-import ThankYou from "./components/CheckOut/ThankYou";
+
 
 
 const routes = [
@@ -74,10 +74,6 @@ const routes = [
       {
         path: "checkOut",
         element: <CheckOut />,
-      },
-      {
-        path: "thankYou",
-        element: <ThankYou />,
       },
       {
         path: "adminDashboard",

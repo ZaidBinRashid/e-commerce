@@ -76,14 +76,14 @@ export default function Shop() {
 
       <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl">
         {/* ------------------ Sidebar Filter ------------------ */}
-        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-64">
+        <div className="bg-slate-800 text-white p-4 rounded-lg shadow-md w-full lg:w-64">
           <h3 className="text-lg font-semibold mb-4 text-gray-800">
             Filter Products
           </h3>
 
           {/* Brand Filter */}
           <div className="mb-6">
-            <h4 className="font-medium text-gray-700 mb-2">Brand</h4>
+            <h4 className=" text-xl font-medium text-white mb-2">Brand</h4>
             <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
               {brands.map((brand) => (
                 <label key={brand} className="inline-flex items-center space-x-2">
@@ -93,7 +93,7 @@ export default function Shop() {
                     onChange={() => toggleSelection(brand, "brand")}
                     className="text-blue-500 focus:ring-blue-400 rounded"
                   />
-                  <span className="text-gray-700">{brand}</span>
+                  <span className="text-white">{brand}</span>
                 </label>
               ))}
             </div>
@@ -101,7 +101,7 @@ export default function Shop() {
 
           {/* Size Filter */}
           <div className="mb-6">
-            <h4 className="font-medium text-gray-700 mb-2">Wrist Size</h4>
+            <h4 className=" text-xl font-medium text-white mb-2">Wrist Size</h4>
             <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
               {wrist_sizes.map((wrist_size) => (
                 <label key={wrist_size} className="inline-flex items-center space-x-2">
@@ -111,7 +111,7 @@ export default function Shop() {
                     onChange={() => toggleSelection(wrist_size, "wrist_size")}
                     className="text-blue-500 focus:ring-blue-400 rounded"
                   />
-                  <span className="text-gray-700">{wrist_size}</span>
+                  <span className="text-white">{wrist_size}</span>
                 </label>
               ))}
             </div>
@@ -124,7 +124,7 @@ export default function Shop() {
                 setSelectedBrands([]);
                 setSelectedSizes([]);
               }}
-              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded"
+              className="w-full bg-blue-500 hover:bg-blue-600  py-2 rounded"
             >
               Clear Filters
             </button>
