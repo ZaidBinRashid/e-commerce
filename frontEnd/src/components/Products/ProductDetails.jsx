@@ -21,12 +21,14 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8080/api/auth/product/${id}`
-        );
-        setProduct(res.data.product);
-        setSelectedImage(`http://localhost:8080${res.data.product.images[0]}`);
-        setTotalPrice(Number(res.data.product.base_price));
+        const res = await axios.get(`http://localhost:8080/api/auth/product/${id}`);
+        const prod = res.data.product;
+        setProduct(prod);
+
+        if (prod.images?.length > 0) {
+          setSelectedImage(`http://localhost:8080${prod.images[0]}`);
+        }
+        setTotalPrice(Number(prod.base_price));
       } catch (err) {
         console.error("Error fetching product:", err);
       } finally {
@@ -47,7 +49,6 @@ export default function ProductDetails() {
   // ✅ Recalculate total price whenever customization changes
   useEffect(() => {
     if (!product) return;
-
     const newPrice =
       Number(product.base_price) +
       (selectedOptions.color?.price_adjustment || 0) +
@@ -57,10 +58,9 @@ export default function ProductDetails() {
     setTotalPrice(newPrice);
   }, [selectedOptions, product]);
 
-  // ✅ Auto-scroll thumbnails to selected image
+  // ✅ Auto-scroll thumbnails
   const handleImageSelect = (img, index) => {
     setSelectedImage(`http://localhost:8080${img}`);
-    
     if (thumbnailContainerRef.current) {
       const container = thumbnailContainerRef.current;
       const thumbnail = container.children[index];
@@ -68,40 +68,42 @@ export default function ProductDetails() {
         const containerWidth = container.offsetWidth;
         const thumbnailLeft = thumbnail.offsetLeft;
         const thumbnailWidth = thumbnail.offsetWidth;
-        const scrollPosition = thumbnailLeft - (containerWidth / 2) + (thumbnailWidth / 2);
-        
-        container.scrollTo({
-          left: scrollPosition,
-          behavior: 'smooth'
-        });
+        const scrollPosition =
+          thumbnailLeft - containerWidth / 2 + thumbnailWidth / 2;
+        container.scrollTo({ left: scrollPosition, behavior: "smooth" });
       }
     }
   };
 
+  // ✅ Unique cart ID per customization
+  const generateCartItemId = (product, selectedOptions) => {
+    const optionsString = JSON.stringify(selectedOptions || {});
+    return `${product.id}-${btoa(optionsString)}`;
+  };
+
   // ✅ Add to Cart
   const handleAddToCart = () => {
-    if (!product.in_stock) return;
-
+    if (!product?.title) return; // safeguard
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
+    const newItem = {
+      cartItemId: generateCartItemId(product, selectedOptions),
+      id: product.id,
+      title: product.title,
+      base_price: product.base_price,
+      total_price: totalPrice,
+      selectedOptions,
+      image: selectedImage || "",
+      quantity,
+    };
+
     const existingItemIndex = cart.findIndex(
-      (item) =>
-        item.id === product.id &&
-        JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions)
+      (item) => item.cartItemId === newItem.cartItemId
     );
 
     if (existingItemIndex >= 0) {
       cart[existingItemIndex].quantity += quantity;
     } else {
-      const newItem = {
-        id: product.id,
-        title: product.title,
-        base_price: product.base_price,
-        total_price: totalPrice,
-        selectedOptions,
-        image: selectedImage,
-        quantity,
-      };
       cart.push(newItem);
     }
 
@@ -111,12 +113,14 @@ export default function ProductDetails() {
     setTimeout(() => setAddedMessage(""), 2000);
   };
 
+  // ✅ Loading + Not Found handling
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <p className="text-gray-400 text-lg">Loading...</p>
       </div>
     );
+
   if (!product)
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -128,23 +132,24 @@ export default function ProductDetails() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+
           {/* -------- Left: Image Gallery -------- */}
           <div className="space-y-4">
             <div className="aspect-square w-full bg-white rounded-2xl overflow-hidden shadow-lg">
               <img
-                src={selectedImage}
-                alt={product.title}
+                src={selectedImage || "http://localhost:8080/default.jpg"}
+                alt={product.title || "Product"}
                 className="w-full h-full object-cover"
               />
             </div>
 
-            {/* Thumbnails with auto-scroll */}
-            <div 
+            {/* Thumbnails */}
+            <div
               ref={thumbnailContainerRef}
               className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-              {product.images.map((img, i) => (
+              {product.images?.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => handleImageSelect(img, i)}
@@ -166,6 +171,7 @@ export default function ProductDetails() {
 
           {/* -------- Right: Product Info -------- */}
           <div className="space-y-6">
+            {/* Basic Info */}
             <div className="bg-white rounded-2xl p-6 shadow-lg">
               <h1 className="text-3xl lg:text-4xl font-light tracking-tight text-gray-900 mb-3">
                 {product.title}
@@ -175,6 +181,7 @@ export default function ProductDetails() {
               </p>
             </div>
 
+            {/* Description */}
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 shadow-lg space-y-4">
               <p className="text-slate-200 leading-relaxed">
                 {product.detailed_description}
@@ -191,8 +198,10 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            {/* ---------- Customization Section ---------- */}
-            {(product.colors?.length > 0 || product.back_types?.length > 0 || product.wrists?.length > 0) && (
+            {/* Customization Section */}
+            {(product.colors?.length > 0 ||
+              product.back_types?.length > 0 ||
+              product.wrists?.length > 0) && (
               <div className="bg-white rounded-2xl p-6 shadow-lg space-y-6">
                 <h2 className="text-sm uppercase tracking-wider text-gray-400 font-semibold border-b border-gray-100 pb-3">
                   Customize Your Watch

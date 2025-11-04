@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
 export default function Cart() {
   const [cart, setCart] = useState([]);
+  const [total, setTotal] = useState(0);
+  const navigate = useNavigate();
 
   // ✅ Load cart from localStorage
   useEffect(() => {
@@ -10,141 +12,141 @@ export default function Cart() {
     setCart(savedCart);
   }, []);
 
-  // ✅ Update localStorage and re-render
-  const updateCart = (updatedCart) => {
+  // ✅ Recalculate total on changes
+  useEffect(() => {
+    const subtotal = cart.reduce(
+      (sum, item) => sum + item.total_price * item.quantity,
+      0
+    );
+    setTotal(subtotal);
+  }, [cart]);
+
+  // ✅ Remove specific variant using cartItemId
+  const removeItem = (cartItemId) => {
+    const updatedCart = cart.filter((item) => item.cartItemId !== cartItemId);
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  // ✅ Increase / Decrease Quantity
-  const handleQuantityChange = (id, change) => {
-    const updatedCart = cart.map((item) => {
-      if (item.id === id) {
-        const newQty = Math.max(1, (item.quantity || 1) + change);
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    });
-    updateCart(updatedCart);
+  // ✅ Update quantity
+  const updateQuantity = (cartItemId, newQty) => {
+    if (newQty < 1) return;
+    const updatedCart = cart.map((item) =>
+      item.cartItemId === cartItemId ? { ...item, quantity: newQty } : item
+    );
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // ✅ Remove Item
-  const handleRemove = (id) => {
-    const updatedCart = cart.filter((item) => item.id !== id);
-    updateCart(updatedCart);
+  // ✅ Proceed to checkout
+  const handleCheckout = () => {
+    if (cart.length === 0) return alert("Your cart is empty!");
+    navigate("/checkout");
   };
 
-  // ✅ Grand Total (includes quantity × total_price)
-  const totalPrice = cart.reduce(
-    (sum, item) => sum + item.total_price * (item.quantity || 1),
-    0
-  );
-
-  if (cart.length === 0)
+  if (cart.length === 0) {
     return (
-      <div className="text-center py-20 text-gray-700">
-        <h2 className="text-2xl font-semibold mb-2">Your cart is empty 🛒</h2>
-        <p>Add some luxury watches to your cart!</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          Your cart is empty 🛒
+        </h2>
+        <button
+          onClick={() => navigate("/shop")}
+          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+        >
+          Go to Shop
+        </button>
       </div>
     );
+  }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 text-gray-800">
-      <h1 className="text-3xl font-bold mb-6 text-center">Your Cart</h1>
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-semibold mb-6">Your Cart</h2>
 
-      <div className="space-y-4">
-        {cart.map((item) => (
-          <div
-            key={item.id}
-            className="flex flex-col sm:flex-row items-center bg-white border border-gray-200 rounded-lg shadow-md p-4 gap-4"
-          >
-            {/* 🖼️ Image */}
-            <img
-              src={item.image}
-              alt={item.title}
-              className="w-32 h-32 object-cover rounded-lg"
-            />
-
-            {/* 📋 Info */}
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold">{item.title}</h2>
-              <p className="text-gray-600 text-sm mt-1">
-                <span className="font-medium">Base Price:</span> ₹
-                {item.base_price}
-              </p>
-
-              {/* 🧩 Selected Customizations */}
-              <div className="text-sm text-gray-700 mt-2 space-y-1">
-                {item.selectedOptions.color && (
-                  <p>
-                    🎨 <span className="font-medium">Color:</span>{" "}
-                    {item.selectedOptions.color.name} (+₹
-                    {item.selectedOptions.color.price_adjustment})
-                  </p>
-                )}
-                {item.selectedOptions.back && (
-                  <p>
-                    ⚙️ <span className="font-medium">Back Type:</span>{" "}
-                    {item.selectedOptions.back.name} (+₹
-                    {item.selectedOptions.back.price_adjustment})
-                  </p>
-                )}
-                {item.selectedOptions.wrist && (
-                  <p>
-                    ⌚ <span className="font-medium">Wrist Style:</span>{" "}
-                    {item.selectedOptions.wrist.name} (+₹
-                    {item.selectedOptions.wrist.price_adjustment})
-                  </p>
-                )}
-              </div>
-
-              {/* 🔢 Quantity Selector */}
-              <div className="flex items-center gap-3 mt-3">
-                <button
-                  onClick={() => handleQuantityChange(item.id, -1)}
-                  className="px-3 py-1 bg-gray-200 rounded text-lg font-bold"
-                >
-                  −
-                </button>
-                <span className="text-lg font-semibold">
-                  {item.quantity || 1}
-                </span>
-                <button
-                  onClick={() => handleQuantityChange(item.id, 1)}
-                  className="px-3 py-1 bg-gray-200 rounded text-lg font-bold"
-                >
-                  +
-                </button>
-              </div>
-
-              {/* 💰 Total per Item */}
-              <p className="text-indigo-600 font-semibold mt-3">
-                Total: ₹{(item.total_price * (item.quantity || 1)).toLocaleString()}
-              </p>
-            </div>
-
-            {/* ❌ Remove Button */}
-            <button
-              onClick={() => handleRemove(item.id)}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm"
+        {/* Cart Items */}
+        <div className="space-y-6">
+          {cart.map((item) => (
+            <div
+              key={item.cartItemId}
+              className="flex flex-col sm:flex-row items-center justify-between border-b pb-4"
             >
-              Remove
-            </button>
-          </div>
-        ))}
-      </div>
+              {/* Left: Image + Info */}
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-20 h-20 object-cover rounded-lg border"
+                />
+                <div>
+                  <h3 className="text-lg font-medium">{item.title}</h3>
+                  <p className="text-gray-600 text-sm">₹{item.total_price}</p>
 
-      {/* 🧾 Grand Total */}
-      <div className="text-right mt-8">
-        <h3 className="text-2xl font-semibold">
-          Grand Total: ₹{totalPrice.toLocaleString()}
-        </h3>
-        <Link to="/checkOut">
-        <button className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium">
-          Proceed to Checkout
-        </button>
-        </Link>
+                  {/* Show selected customizations */}
+                  {item.selectedOptions?.color && (
+                    <p className="text-xs text-gray-500">
+                      🎨 Color: {item.selectedOptions.color.name}
+                    </p>
+                  )}
+                  {item.selectedOptions?.back && (
+                    <p className="text-xs text-gray-500">
+                      ⚙️ Back: {item.selectedOptions.back.name}
+                    </p>
+                  )}
+                  {item.selectedOptions?.wrist && (
+                    <p className="text-xs text-gray-500">
+                      ⌚ Wrist: {item.selectedOptions.wrist.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Right: Quantity & Remove */}
+              <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 sm:mt-0">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() =>
+                      updateQuantity(item.cartItemId, item.quantity - 1)
+                    }
+                    className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-700 font-bold"
+                  >
+                    −
+                  </button>
+                  <span className="px-3">{item.quantity}</span>
+                  <button
+                    onClick={() =>
+                      updateQuantity(item.cartItemId, item.quantity + 1)
+                    }
+                    className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-700 font-bold"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => removeItem(item.cartItemId)}
+                  className="text-red-600 hover:text-red-800 text-sm font-medium"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Total + Checkout */}
+        <div className="mt-8 flex flex-col sm:flex-row justify-between items-center border-t pt-4">
+          <p className="text-lg font-semibold">
+            Total: ₹{total.toLocaleString()}
+          </p>
+          <button
+            onClick={handleCheckout}
+            className="mt-4 sm:mt-0 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+          >
+            Proceed to Checkout
+          </button>
+        </div>
       </div>
     </div>
   );
