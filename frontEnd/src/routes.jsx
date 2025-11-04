@@ -20,7 +20,9 @@ import AddTestimonials from "./components/Testimonials/AddTestimonials";
 import DeleteTestimonials from "./components/Testimonials/DeleteTestimonials";
 import UpdateProducts from "./components/Products/UpdateProducts";
 import ProductDetails from "./components/Products/ProductDetails";
-import CheckOut from "./components/CheckOut/CheckOut"
+import CheckOut from "./components/CheckOut/CheckOut";
+import ThankYou from "./components/CheckOut/ThankYou";
+
 
 const routes = [
   {
@@ -65,15 +67,18 @@ const routes = [
         path: "logIn",
         element: <LoginForm />,
       },
-       {
+      {
         path: "product/:id",
         element: <ProductDetails />,
       },
       {
         path: "checkOut",
-        element: <CheckOut/>,
+        element: <CheckOut />,
       },
-
+      {
+        path: "thankYou",
+        element: <ThankYou />,
+      },
       {
         path: "adminDashboard",
         element: (
@@ -81,15 +86,14 @@ const routes = [
             <AdminDashboard />
           </AdminRoute>
         ),
-         children: [
-          { index: true , element: <AllProducts /> },
+        children: [
+          { index: true, element: <AllProducts /> },
           { path: "allProducts", element: <AllProducts /> },
           { path: "addProducts", element: <AddProducts /> },
-          { path: "updateProduct/:id", element: <UpdateProducts/>},
+          { path: "updateProduct/:id", element: <UpdateProducts /> },
           { path: "analytics", element: <Analytics /> },
           { path: "addTestimonials", element: <AddTestimonials /> },
           { path: "deleteTestimonials", element: <DeleteTestimonials /> },
-          
         ],
       },
     ],

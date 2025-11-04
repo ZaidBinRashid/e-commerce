@@ -66,7 +66,8 @@ const SQL = `
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
      );
 
-     CREATE TABLE IF NOT EXISTS orders (
+   
+    CREATE TABLE IF NOT EXISTS orders (
       id SERIAL PRIMARY KEY,
       full_name VARCHAR(100) NOT NULL,
       email VARCHAR(100) NOT NULL,
@@ -77,8 +78,13 @@ const SQL = `
       pincode VARCHAR(10) NOT NULL,
       total_amount NUMERIC(10,2) NOT NULL,
       shipping_charge NUMERIC(10,2) NOT NULL DEFAULT 0,
+      payment_status VARCHAR(20) DEFAULT 'Pending',
+      payment_id VARCHAR(255),
+      razorpay_order_id VARCHAR(255),
+      order_status VARCHAR(20) DEFAULT 'Processing',
       created_at TIMESTAMP DEFAULT NOW()
-     );
+    );
+
 
     CREATE TABLE IF NOT EXISTS order_items (
       id SERIAL PRIMARY KEY,
@@ -90,6 +96,7 @@ const SQL = `
       selected_options JSONB,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
 
 `;
 

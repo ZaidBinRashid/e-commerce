@@ -1,8 +1,9 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
 import cors from "cors";
 import authRoutes from "./routes/router.js";
-import orderRoutes from "./routes/orderRoutes.js"
+import paymentRoutes from "./routes/paymentRoutes.js"
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -17,10 +18,11 @@ const app = express();
 
 app.use(express.json())
 app.use(cookieParser());
-app.use(cors({ origin:"http://localhost:5173" ,credentials: true }));
+app.use(cors({ origin:process.env.CORS_ORIGIN,credentials: true }));
+app.use(bodyParser.json({ limit: "10mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/api/orders", orderRoutes)
 app.use("/api/auth", authRoutes);
+app.use("/api/payment",paymentRoutes);
 
 export default app;
