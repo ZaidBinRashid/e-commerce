@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/auth/profile/:id", { withCredentials: true })
+      .get(`${import.meta.env.VITE_API_URL}/api/auth/profile/:id`, { withCredentials: true })
       .then(res => setUser(res.data.user))
       .catch(() => setUser(null))
       .finally(() => setLoading(false))

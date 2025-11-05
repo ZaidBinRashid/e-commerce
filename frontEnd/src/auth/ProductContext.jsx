@@ -13,7 +13,7 @@ export const ProductsProvider = ({ children }) => {
 
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/auth/allProducts");
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/allProducts`);
         if (isMounted) {
           const data = res.data?.products;
           setProducts(Array.isArray(data) ? data : []);

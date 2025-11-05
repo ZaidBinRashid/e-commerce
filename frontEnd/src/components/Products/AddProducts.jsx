@@ -98,7 +98,7 @@ export default function AddProducts() {
       });
 
       const res = await axios.post(
-        "http://localhost:8080/api/auth/addProduct",
+        `${import.meta.env.VITE_API_URL}/api/auth/addProduct`,
         formData,
         {
           withCredentials: true,

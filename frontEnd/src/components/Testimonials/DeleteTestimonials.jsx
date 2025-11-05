@@ -9,7 +9,7 @@ export default function DeleteTestimonials() {
   // Fetch all testimonials
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/auth/testimonials", { withCredentials: true })
+      .get(`${import.meta.env.VITE_API_URL}/api/auth/testimonials`, { withCredentials: true })
       .then((res) => {
         if (Array.isArray(res.data.testimonials)) {
           setTestimonials(res.data.testimonials);
@@ -30,7 +30,7 @@ export default function DeleteTestimonials() {
     if (!window.confirm("Are you sure you want to delete this testimonial?")) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/auth/testimonial/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/auth/testimonial/${id}`, {
         withCredentials: true,
       });
 

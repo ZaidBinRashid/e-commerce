@@ -67,7 +67,7 @@ const ImageSlider = () => {
               animate="center"
               exit="exit"
               transition={{ duration: 0.8, ease: "easeInOut" }}
-              className="absolute w-full h-full object-cover  shadow-md"
+              className="absolute w-full h-full object-cover"
             />
           </AnimatePresence>
         </div>

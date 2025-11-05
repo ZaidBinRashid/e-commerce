@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 
 const SignupSchema = Yup.object().shape({
@@ -35,7 +34,7 @@ export default function SignupForm() {
     try {
       await SignupSchema.validate(form, { abortEarly: false });
 
-      const res = await fetch("http://localhost:8080/api/auth/signup", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

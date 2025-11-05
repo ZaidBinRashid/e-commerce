@@ -11,7 +11,7 @@ export default function AllProducts() {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/auth/product/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/auth/product/${id}`, {
         withCredentials: true,
       });
 

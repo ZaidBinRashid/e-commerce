@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-import AllProducts from "../Products/AllProducts";
+
 
 const AdminDashboard = () => {
   const { user } = useAuth();

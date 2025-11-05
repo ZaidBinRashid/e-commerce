@@ -41,7 +41,7 @@ export default function UpdateProducts() {
   // ✅ Fetch existing product
   useEffect(() => {
     axios
-      .get(`http://localhost:8080/api/auth/product/${id}`)
+      .get(`${import.meta.env.VITE_API_URL}/api/auth/product/${id}`)
       .then((res) => {
         const data = res.data.product;
 
@@ -58,7 +58,7 @@ export default function UpdateProducts() {
 
         if (data.images?.length > 0) {
           const fullUrls = data.images.map((img) =>
-            img.startsWith("http") ? img : `http://localhost:8080${img}`
+            img.startsWith("http") ? img : `${import.meta.env.VITE_API_URL}${img}`
           );
           setPreview(fullUrls);
         }
@@ -138,7 +138,7 @@ export default function UpdateProducts() {
         if (w.image) formData.append("wristImages", w.image);
       });
 
-      await axios.put(`http://localhost:8080/api/auth/product/${id}`, formData, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/auth/product/${id}`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });

@@ -39,7 +39,7 @@ export default function Checkout() {
     setShippingInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Ensure Razorpay SDK is loaded (if not in index.html)
+  // Ensure Razorpay SDK is loaded
   useEffect(() => {
     if (!window.Razorpay) {
       const script = document.createElement("script");
@@ -64,7 +64,6 @@ export default function Checkout() {
     }
 
     try {
-      // 1) Create order on backend -> backend creates Razorpay order and saves local order
       const createRes = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/payment/create-order`,
         {
@@ -76,9 +75,7 @@ export default function Checkout() {
       );
 
       const { razorpay, orderId, key } = createRes.data;
-      // razorpay: { id, amount, currency }
 
-      // 2) Open Razorpay checkout
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID ?? key,
         amount: razorpay.amount,
@@ -86,7 +83,6 @@ export default function Checkout() {
         name: "Heritage Watches Co",
         description: "Order Payment",
         order_id: razorpay.id,
-        // optional prefill
         prefill: {
           name: shippingInfo.full_name,
           email: shippingInfo.email,
@@ -94,7 +90,6 @@ export default function Checkout() {
         },
         handler: async function (response) {
           try {
-            // send only required fields explicitly
             const verifyRes = await axios.post(
               `${import.meta.env.VITE_API_URL}/api/payment/verify`,
               {
@@ -105,29 +100,31 @@ export default function Checkout() {
             );
 
             if (verifyRes.data.success) {
-              // Save order info (optional)
               localStorage.removeItem("cart");
+              window.dispatchEvent(new Event("cartUpdated"));
 
-              // Show popup message
+              // Premium success popup
               const popup = document.createElement("div");
               popup.className =
-                "fixed inset-0 flex items-center justify-center bg-slate-800 bg-opacity-50 z-50";
+                "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4";
               popup.innerHTML = `
-    <div class="bg-white rounded-2xl p-8 shadow-xl text-center max-w-sm w-full animate-fadeIn">
-      <svg xmlns="http://www.w3.org/2000/svg" 
-           class="w-14 h-14 text-green-500 mx-auto mb-3" 
-           fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
-      </svg>
-      <h2 class="text-xl font-semibold text-gray-800 mb-1">Thank you for shopping!</h2>
-      <p class="text-gray-600 mb-5">Your order has been placed successfully 🎉</p>
-      <p class="text-sm text-gray-500">Redirecting to home...</p>
+    <div class="bg-white rounded-2xl p-8 shadow-2xl text-center max-w-md w-full animate-fadeIn">
+      <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" 
+             class="w-10 h-10 text-white" 
+             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2 class="text-2xl font-light text-gray-900 mb-2">Order Confirmed!</h2>
+      <p class="text-gray-600 mb-6">Thank you for your purchase. Your order has been placed successfully.</p>
+      <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
+        <p class="text-sm text-gray-500">Redirecting to home page...</p>
+      </div>
     </div>
   `;
               document.body.appendChild(popup);
 
-              // Animate fade-in
               const style = document.createElement("style");
               style.innerHTML = `
     @keyframes fadeIn {
@@ -140,7 +137,6 @@ export default function Checkout() {
   `;
               document.head.appendChild(style);
 
-              // Redirect after 3 seconds
               setTimeout(() => {
                 popup.remove();
                 navigate("/");
@@ -153,7 +149,7 @@ export default function Checkout() {
             alert("Server verification failed");
           }
         },
-        theme: { color: "#4f46e5" },
+        theme: { color: "#f59e0b" },
       };
 
       const rzp = new window.Razorpay(options);
@@ -164,141 +160,259 @@ export default function Checkout() {
     }
   };
 
+  const subtotal = total - shippingCharge;
+
   return (
-    <div className="max-w-3xl mx-auto my-10 p-6 bg-white shadow-lg rounded-2xl">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-        Checkout
-      </h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 lg:py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl lg:text-5xl font-light tracking-tight text-gray-900 mb-2">
+            Checkout
+          </h1>
+          <p className="text-gray-600">Complete your order</p>
+        </div>
 
-      {/* Shipping Info */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <input
-          name="full_name"
-          placeholder="Full name"
-          value={shippingInfo.full_name}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        <input
-          name="email"
-          placeholder="Email"
-          value={shippingInfo.email}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        <input
-          name="phone"
-          placeholder="Phone"
-          value={shippingInfo.phone}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        <input
-          name="address"
-          placeholder="Address"
-          value={shippingInfo.address}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:col-span-2"
-        />
-        <input
-          name="city"
-          placeholder="City"
-          value={shippingInfo.city}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Shipping Information - Left Column */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8">
+              <h2 className="text-xl font-medium text-gray-900 mb-6 border-b border-gray-100 pb-4">
+                Shipping Information
+              </h2>
 
-        {/* State Dropdown */}
-        <select
-          name="state"
-          value={shippingInfo.state}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="">Select State</option>
-          {[
-            "Andhra Pradesh",
-            "Arunachal Pradesh",
-            "Assam",
-            "Bihar",
-            "Chhattisgarh",
-            "Goa",
-            "Gujarat",
-            "Haryana",
-            "Himachal Pradesh",
-            "Jharkhand",
-            "Karnataka",
-            "Kerala",
-            "Madhya Pradesh",
-            "Maharashtra",
-            "Manipur",
-            "Meghalaya",
-            "Mizoram",
-            "Nagaland",
-            "Odisha",
-            "Punjab",
-            "Rajasthan",
-            "Sikkim",
-            "Tamil Nadu",
-            "Telangana",
-            "Tripura",
-            "Uttar Pradesh",
-            "Uttarakhand",
-            "West Bengal",
-            "Andaman and Nicobar Islands",
-            "Chandigarh",
-            "Dadra and Nagar Haveli and Daman and Diu",
-            "Delhi",
-            "Jammu and Kashmir",
-            "Ladakh",
-            "Lakshadweep",
-            "Puducherry",
-          ].map((state) => (
-            <option key={state} value={state}>
-              {state}
-            </option>
-          ))}
-        </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    name="full_name"
+                    placeholder="John Doe"
+                    value={shippingInfo.full_name}
+                    onChange={handleChange}
+                    className="w-full border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-shadow"
+                  />
+                </div>
 
-        <input
-          name="pincode"
-          placeholder="Pincode"
-          value={shippingInfo.pincode}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email
+                  </label>
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={shippingInfo.email}
+                    onChange={handleChange}
+                    className="w-full border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-shadow"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone
+                  </label>
+                  <input
+                    name="phone"
+                    placeholder="+91 98765 43210"
+                    value={shippingInfo.phone}
+                    onChange={handleChange}
+                    className="w-full border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-shadow"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address
+                  </label>
+                  <input
+                    name="address"
+                    placeholder="Street address, apartment, suite, etc."
+                    value={shippingInfo.address}
+                    onChange={handleChange}
+                    className="w-full border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-shadow"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    City
+                  </label>
+                  <input
+                    name="city"
+                    placeholder="City"
+                    value={shippingInfo.city}
+                    onChange={handleChange}
+                    className="w-full border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-shadow"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    State
+                  </label>
+                  <select
+                    name="state"
+                    value={shippingInfo.state}
+                    onChange={handleChange}
+                    className="w-full border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-shadow bg-white"
+                  >
+                    <option value="">Select State</option>
+                    {[
+                      "Andhra Pradesh",
+                      "Arunachal Pradesh",
+                      "Assam",
+                      "Bihar",
+                      "Chhattisgarh",
+                      "Goa",
+                      "Gujarat",
+                      "Haryana",
+                      "Himachal Pradesh",
+                      "Jharkhand",
+                      "Karnataka",
+                      "Kerala",
+                      "Madhya Pradesh",
+                      "Maharashtra",
+                      "Manipur",
+                      "Meghalaya",
+                      "Mizoram",
+                      "Nagaland",
+                      "Odisha",
+                      "Punjab",
+                      "Rajasthan",
+                      "Sikkim",
+                      "Tamil Nadu",
+                      "Telangana",
+                      "Tripura",
+                      "Uttar Pradesh",
+                      "Uttarakhand",
+                      "West Bengal",
+                      "Andaman and Nicobar Islands",
+                      "Chandigarh",
+                      "Dadra and Nagar Haveli and Daman and Diu",
+                      "Delhi",
+                      "Jammu and Kashmir",
+                      "Ladakh",
+                      "Lakshadweep",
+                      "Puducherry",
+                    ].map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Pincode
+                  </label>
+                  <input
+                    name="pincode"
+                    placeholder="123456"
+                    value={shippingInfo.pincode}
+                    onChange={handleChange}
+                    className="w-full border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-shadow"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Free Shipping Banner */}
+            {subtotal < FREE_SHIPPING_THRESHOLD && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                <p className="text-sm text-amber-800">
+                  <span className="font-medium">Almost there!</span> Add ₹
+                  {(FREE_SHIPPING_THRESHOLD - subtotal).toLocaleString()} more to
+                  get free shipping.
+                </p>
+              </div>
+            )}
+            {subtotal >= FREE_SHIPPING_THRESHOLD && (
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+                <p className="text-sm text-green-800 font-medium">
+                  🎉 You qualify for free shipping!
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Order Summary - Right Column */}
+          <div className="lg:col-span-1">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-xl p-6 lg:sticky lg:top-8 space-y-6">
+              <h2 className="text-xl font-medium text-white border-b border-slate-700 pb-4">
+                Order Summary
+              </h2>
+
+              {/* Cart Items */}
+              <div className="space-y-3 max-h-48 overflow-y-auto">
+                {cart.map((item) => (
+                  <div
+                    key={item.cartItemId}
+                    className="flex gap-3 text-slate-300"
+                  >
+                    <div className="w-12 h-12 bg-slate-700 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-grow min-w-0">
+                      <p className="text-sm text-white font-medium truncate">
+                        {item.title}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        Qty: {item.quantity}
+                      </p>
+                    </div>
+                    <p className="text-sm text-white flex-shrink-0">
+                      ₹{((item.price ?? item.total_price ?? 0) * item.quantity).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-3 pt-4 border-t border-slate-700">
+                <div className="flex justify-between text-slate-300">
+                  <span>Subtotal</span>
+                  <span>₹{subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span>Shipping</span>
+                  <span className={shippingCharge === 0 ? "text-green-400" : ""}>
+                    {shippingCharge === 0 ? "FREE" : `₹${shippingCharge}`}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-700 pt-4">
+                <div className="flex justify-between text-white text-xl font-semibold mb-6">
+                  <span>Total</span>
+                  <span>₹{total.toLocaleString()}</span>
+                </div>
+
+                <button
+                  onClick={handleProceedToPayment}
+                  className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-medium py-4 rounded-full hover:from-amber-500 hover:to-amber-600 transition-all shadow-lg hover:shadow-xl"
+                >
+                  Complete Payment
+                </button>
+              </div>
+
+              <div className="pt-4 border-t border-slate-700">
+                <button
+                  onClick={() => navigate("/cart")}
+                  className="w-full text-slate-300 hover:text-white text-sm font-medium py-2 transition-colors"
+                >
+                  ← Back to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* Order Summary */}
-      <div className="mt-8 bg-gray-50 p-5 rounded-xl">
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">
-          Order Summary
-        </h3>
-        <div className="flex justify-between text-gray-600 mb-2">
-          <span>Items</span>
-          <span>{cart.length}</span>
-        </div>
-        <div className="flex justify-between text-gray-600 mb-2">
-          <span>Subtotal</span>
-          <span>₹{(total - shippingCharge).toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-gray-600 mb-2">
-          <span>Shipping</span>
-          <span>₹{shippingCharge}</span>
-        </div>
-        <div className="flex justify-between text-gray-900 font-semibold text-lg mt-3">
-          <span>Total</span>
-          <span>₹{total.toFixed(2)}</span>
-        </div>
-      </div>
-
-      {/* Proceed Button */}
-      <button
-        onClick={handleProceedToPayment}
-        className="w-full mt-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors duration-300"
-      >
-        Proceed to Payment
-      </button>
     </div>
   );
 }

@@ -21,12 +21,12 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/auth/product/${id}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/product/${id}`);
         const prod = res.data.product;
         setProduct(prod);
 
         if (prod.images?.length > 0) {
-          setSelectedImage(`http://localhost:8080${prod.images[0]}`);
+          setSelectedImage(`${import.meta.env.VITE_API_URL}${prod.images[0]}`);
         }
         setTotalPrice(Number(prod.base_price));
       } catch (err) {
@@ -60,7 +60,7 @@ export default function ProductDetails() {
 
   // ✅ Auto-scroll thumbnails
   const handleImageSelect = (img, index) => {
-    setSelectedImage(`http://localhost:8080${img}`);
+    setSelectedImage(`${import.meta.env.VITE_API_URL}${img}`);
     if (thumbnailContainerRef.current) {
       const container = thumbnailContainerRef.current;
       const thumbnail = container.children[index];
@@ -137,7 +137,7 @@ export default function ProductDetails() {
           <div className="space-y-4">
             <div className="aspect-square w-full bg-white rounded-2xl overflow-hidden shadow-lg">
               <img
-                src={selectedImage || "http://localhost:8080/default.jpg"}
+                src={selectedImage || `${import.meta.env.VITE_API_URL}/default.jpg`}
                 alt={product.title || "Product"}
                 className="w-full h-full object-cover"
               />
@@ -146,7 +146,7 @@ export default function ProductDetails() {
             {/* Thumbnails */}
             <div
               ref={thumbnailContainerRef}
-              className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
+              className="flex gap-3 overflow-x-auto py-2 px-2 scrollbar-hide"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {product.images?.map((img, i) => (
@@ -154,13 +154,13 @@ export default function ProductDetails() {
                   key={i}
                   onClick={() => handleImageSelect(img, i)}
                   className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all shadow-md ${
-                    selectedImage === `http://localhost:8080${img}`
+                    selectedImage === `${import.meta.env.VITE_API_URL}${img}`
                       ? "ring-2 ring-black ring-offset-2 ring-offset-gray-100"
                       : "opacity-60 hover:opacity-100"
                   }`}
                 >
                   <img
-                    src={`http://localhost:8080${img}`}
+                    src={`${import.meta.env.VITE_API_URL}${img}`}
                     alt={`View ${i + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -224,7 +224,7 @@ export default function ProductDetails() {
                         >
                           <div className="aspect-square bg-gray-100">
                             <img
-                              src={`http://localhost:8080${color.image}`}
+                              src={`${import.meta.env.VITE_API_URL}${color.image}`}
                               alt={color.name}
                               className="w-full h-full object-cover"
                             />
@@ -256,7 +256,7 @@ export default function ProductDetails() {
                         >
                           <div className="aspect-square bg-gray-100">
                             <img
-                              src={`http://localhost:8080${back.image}`}
+                              src={`${import.meta.env.VITE_API_URL}${back.image}`}
                               alt={back.name}
                               className="w-full h-full object-cover"
                             />
@@ -288,7 +288,7 @@ export default function ProductDetails() {
                         >
                           <div className="aspect-square bg-gray-100">
                             <img
-                              src={`http://localhost:8080${wrist.image}`}
+                              src={`${import.meta.env.VITE_API_URL}${wrist.image}`}
                               alt={wrist.name}
                               className="w-full h-full object-cover"
                             />

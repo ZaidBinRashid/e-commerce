@@ -26,6 +26,7 @@ export default function Cart() {
     const updatedCart = cart.filter((item) => item.cartItemId !== cartItemId);
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   // ✅ Update quantity
@@ -36,6 +37,7 @@ export default function Cart() {
     );
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   // ✅ Proceed to checkout
@@ -46,106 +48,195 @@ export default function Cart() {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          Your cart is empty 🛒
-        </h2>
-        <button
-          onClick={() => navigate("/shop")}
-          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
-        >
-          Go to Shop
-        </button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center space-y-6">
+          <div className="w-32 h-32 mx-auto bg-gradient-to-br from-slate-800 to-slate-900 rounded-full flex items-center justify-center shadow-xl">
+            <svg
+              className="w-16 h-16 text-slate-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-light text-gray-900">
+            Your cart is empty
+          </h2>
+          <p className="text-gray-600">
+            Discover our collection of luxury timepieces
+          </p>
+          <button
+            onClick={() => navigate("/shop")}
+            className="inline-block bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-medium px-8 py-3 rounded-full hover:from-amber-500 hover:to-amber-600 transition-all shadow-lg hover:shadow-xl"
+          >
+            Browse Collection
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-semibold mb-6">Your Cart</h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 lg:py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl lg:text-5xl font-light tracking-tight text-gray-900 mb-2">
+            Shopping Cart
+          </h1>
+          <p className="text-gray-600">
+            {cart.length} {cart.length === 1 ? "item" : "items"} in your cart
+          </p>
+        </div>
 
-        {/* Cart Items */}
-        <div className="space-y-6">
-          {cart.map((item) => (
-            <div
-              key={item.cartItemId}
-              className="flex flex-col sm:flex-row items-center justify-between border-b pb-4"
-            >
-              {/* Left: Image + Info */}
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-20 h-20 object-cover rounded-lg border"
-                />
-                <div>
-                  <h3 className="text-lg font-medium">{item.title}</h3>
-                  <p className="text-gray-600 text-sm">₹{item.total_price}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Cart Items - Left Column */}
+          <div className="lg:col-span-2 space-y-4">
+            {cart.map((item) => (
+              <div
+                key={item.cartItemId}
+                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6"
+              >
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {/* Product Image */}
+                  <div className="flex-shrink-0">
+                    <div className="w-full sm:w-32 h-32 bg-gray-100 rounded-xl overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
 
-                  {/* Show selected customizations */}
-                  {item.selectedOptions?.color && (
-                    <p className="text-xs text-gray-500">
-                      🎨 Color: {item.selectedOptions.color.name}
-                    </p>
-                  )}
-                  {item.selectedOptions?.back && (
-                    <p className="text-xs text-gray-500">
-                      ⚙️ Back: {item.selectedOptions.back.name}
-                    </p>
-                  )}
-                  {item.selectedOptions?.wrist && (
-                    <p className="text-xs text-gray-500">
-                      ⌚ Wrist: {item.selectedOptions.wrist.name}
-                    </p>
-                  )}
+                  {/* Product Details */}
+                  <div className="flex-grow space-y-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {item.title}
+                      </h3>
+                      <p className="text-xl font-light text-gray-900">
+                        ₹{item.total_price.toLocaleString()}
+                      </p>
+                    </div>
+
+                    {/* Customizations */}
+                    {(item.selectedOptions?.color ||
+                      item.selectedOptions?.back ||
+                      item.selectedOptions?.wrist) && (
+                      <div className="space-y-1">
+                        {item.selectedOptions?.color && (
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <span className="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center">
+                              🎨
+                            </span>
+                            <span>Color: {item.selectedOptions.color.name}</span>
+                          </div>
+                        )}
+                        {item.selectedOptions?.back && (
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <span className="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center">
+                              ⚙️
+                            </span>
+                            <span>Back: {item.selectedOptions.back.name}</span>
+                          </div>
+                        )}
+                        {item.selectedOptions?.wrist && (
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <span className="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center">
+                              ⌚
+                            </span>
+                            <span>Wrist: {item.selectedOptions.wrist.name}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Quantity Controls & Remove */}
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.cartItemId, item.quantity - 1)
+                          }
+                          className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-900 font-bold transition-colors"
+                        >
+                          −
+                        </button>
+                        <span className="w-8 text-center font-medium text-gray-900">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.cartItemId, item.quantity + 1)
+                          }
+                          className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-900 font-bold transition-colors"
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => removeItem(item.cartItemId)}
+                        className="text-red-600 hover:text-red-700 text-sm font-medium transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Order Summary - Right Column */}
+          <div className="lg:col-span-1">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-xl p-6 lg:sticky lg:top-8 space-y-6">
+              <h2 className="text-xl font-medium text-white border-b border-slate-700 pb-4">
+                Order Summary
+              </h2>
+
+              <div className="space-y-3">
+                <div className="flex justify-between text-slate-300">
+                  <span>Subtotal</span>
+                  <span>₹{total.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span>Shipping</span>
+                  <span className="text-sm">Calculated at checkout</span>
                 </div>
               </div>
 
-              {/* Right: Quantity & Remove */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 sm:mt-0">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.cartItemId, item.quantity - 1)
-                    }
-                    className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-700 font-bold"
-                  >
-                    −
-                  </button>
-                  <span className="px-3">{item.quantity}</span>
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.cartItemId, item.quantity + 1)
-                    }
-                    className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-700 font-bold"
-                  >
-                    +
-                  </button>
+              <div className="border-t border-slate-700 pt-4">
+                <div className="flex justify-between text-white text-lg font-semibold mb-6">
+                  <span>Total</span>
+                  <span>₹{total.toLocaleString()}</span>
                 </div>
 
                 <button
-                  onClick={() => removeItem(item.cartItemId)}
-                  className="text-red-600 hover:text-red-800 text-sm font-medium"
+                  onClick={handleCheckout}
+                  className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-medium py-4 rounded-full hover:from-amber-500 hover:to-amber-600 transition-all shadow-lg hover:shadow-xl"
                 >
-                  Remove
+                  Proceed to Checkout
+                </button>
+              </div>
+
+              <div className="pt-4 border-t border-slate-700">
+                <button
+                  onClick={() => navigate("/shop")}
+                  className="w-full text-slate-300 hover:text-white text-sm font-medium py-2 transition-colors"
+                >
+                  ← Continue Shopping
                 </button>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Total + Checkout */}
-        <div className="mt-8 flex flex-col sm:flex-row justify-between items-center border-t pt-4">
-          <p className="text-lg font-semibold">
-            Total: ₹{total.toLocaleString()}
-          </p>
-          <button
-            onClick={handleCheckout}
-            className="mt-4 sm:mt-0 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
-          >
-            Proceed to Checkout
-          </button>
+          </div>
         </div>
       </div>
     </div>

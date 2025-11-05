@@ -203,7 +203,7 @@ export default function Shop() {
                               src={
                                 product.images[0].startsWith("http")
                                   ? product.images[0]
-                                  : `http://localhost:8080${product.images[0]}`
+                                  : `${import.meta.env.VITE_API_URL}${product.images[0]}`
                               }
                               alt={product.title}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
