@@ -88,7 +88,7 @@ export default function Shop() {
             className="text-4xl lg:text-5xl font-light tracking-tight text-gray-900"
           />
           <p className="text-gray-600 mt-2 font-medium">
-            {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+            {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}
           </p>
         </div>
 
@@ -198,16 +198,16 @@ export default function Shop() {
                     >
                       <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col">
                         <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden flex-shrink-0">
-                          {product.images && product.images.length > 0 && (
+                          {product.images && product.images.length > 0 ? (
                             <img
-                              src={
-                                product.images[0].startsWith("http")
-                                  ? product.images[0]
-                                  : `${import.meta.env.VITE_API_URL}${product.images[0]}`
-                              }
+                              src={product.images[0]}
                               alt={product.title}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <span className="text-gray-400 text-sm">No image</span>
+                            </div>
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
@@ -217,7 +217,7 @@ export default function Shop() {
                             <h3 className="text-base font-semibold text-gray-900 group-hover:text-amber-600 transition-colors line-clamp-1">
                               {product.title}
                             </h3>
-                            
+
                             <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
                               {product.brand && (
                                 <span className="bg-slate-100 px-2 py-1 rounded-full">{product.brand}</span>

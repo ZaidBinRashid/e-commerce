@@ -1,13 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function ProductDetails() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [addedMessage, setAddedMessage] = useState("");
   const [selectedOptions, setSelectedOptions] = useState({
     color: null,
     back: null,
@@ -17,16 +17,18 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const thumbnailContainerRef = useRef(null);
 
-  // ✅ Fetch product data
+  // ✅ Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/product/${id}`);
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/auth/product/${id}`
+        );
         const prod = res.data.product;
         setProduct(prod);
 
         if (prod.images?.length > 0) {
-          setSelectedImage(`${import.meta.env.VITE_API_URL}${prod.images[0]}`);
+          setSelectedImage(prod.images[0]);
         }
         setTotalPrice(Number(prod.base_price));
       } catch (err) {
@@ -35,10 +37,11 @@ export default function ProductDetails() {
         setLoading(false);
       }
     };
+
     fetchProduct();
   }, [id]);
 
-  // ✅ Handle customization selections
+  // ✅ Handle selection (color, back, wrist)
   const handleSelect = (type, option) => {
     setSelectedOptions((prev) => ({
       ...prev,
@@ -46,7 +49,7 @@ export default function ProductDetails() {
     }));
   };
 
-  // ✅ Recalculate total price whenever customization changes
+  // ✅ Calculate price dynamically
   useEffect(() => {
     if (!product) return;
     const newPrice =
@@ -58,24 +61,21 @@ export default function ProductDetails() {
     setTotalPrice(newPrice);
   }, [selectedOptions, product]);
 
-  // ✅ Auto-scroll thumbnails
+  // ✅ Scroll to selected thumbnail
   const handleImageSelect = (img, index) => {
-    setSelectedImage(`${import.meta.env.VITE_API_URL}${img}`);
+    setSelectedImage(img);
     if (thumbnailContainerRef.current) {
       const container = thumbnailContainerRef.current;
       const thumbnail = container.children[index];
-      if (thumbnail) {
-        const containerWidth = container.offsetWidth;
-        const thumbnailLeft = thumbnail.offsetLeft;
-        const thumbnailWidth = thumbnail.offsetWidth;
-        const scrollPosition =
-          thumbnailLeft - containerWidth / 2 + thumbnailWidth / 2;
-        container.scrollTo({ left: scrollPosition, behavior: "smooth" });
-      }
+      const scrollPos =
+        thumbnail.offsetLeft -
+        container.offsetWidth / 2 +
+        thumbnail.offsetWidth / 2;
+      container.scrollTo({ left: scrollPos, behavior: "smooth" });
     }
   };
 
-  // ✅ Unique cart ID per customization
+  // ✅ Unique cart item ID based on selected options
   const generateCartItemId = (product, selectedOptions) => {
     const optionsString = JSON.stringify(selectedOptions || {});
     return `${product.id}-${btoa(optionsString)}`;
@@ -83,7 +83,8 @@ export default function ProductDetails() {
 
   // ✅ Add to Cart
   const handleAddToCart = () => {
-    if (!product?.title) return; // safeguard
+    if (!product?.title) return;
+
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
     const newItem = {
@@ -109,21 +110,20 @@ export default function ProductDetails() {
 
     localStorage.setItem("cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("cartUpdated"));
-    setAddedMessage("✅ Added to cart!");
-    setTimeout(() => setAddedMessage(""), 2000);
+    toast.success("✅ Added to cart!");
   };
 
-  // ✅ Loading + Not Found handling
+  // ✅ Loading state
   if (loading)
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <p className="text-gray-400 text-lg">Loading...</p>
       </div>
     );
 
   if (!product)
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <p className="text-gray-400 text-lg">Product not found</p>
       </div>
     );
@@ -132,12 +132,11 @@ export default function ProductDetails() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-
-          {/* -------- Left: Image Gallery -------- */}
+          {/* ---------- Left: Image Gallery ---------- */}
           <div className="space-y-4">
             <div className="aspect-square w-full bg-white rounded-2xl overflow-hidden shadow-lg">
               <img
-                src={selectedImage || `${import.meta.env.VITE_API_URL}/default.jpg`}
+                src={selectedImage || "/default.jpg"}
                 alt={product.title || "Product"}
                 className="w-full h-full object-cover"
               />
@@ -147,20 +146,19 @@ export default function ProductDetails() {
             <div
               ref={thumbnailContainerRef}
               className="flex gap-3 overflow-x-auto py-2 px-2 scrollbar-hide"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {product.images?.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => handleImageSelect(img, i)}
                   className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all shadow-md ${
-                    selectedImage === `${import.meta.env.VITE_API_URL}${img}`
-                      ? "ring-2 ring-black ring-offset-2 ring-offset-gray-100"
+                    selectedImage === img
+                      ? "ring-2 ring-black ring-offset-2"
                       : "opacity-60 hover:opacity-100"
                   }`}
                 >
                   <img
-                    src={`${import.meta.env.VITE_API_URL}${img}`}
+                    src={img}
                     alt={`View ${i + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -169,7 +167,7 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* -------- Right: Product Info -------- */}
+          {/* ---------- Right: Product Info ---------- */}
           <div className="space-y-6">
             {/* Basic Info */}
             <div className="bg-white rounded-2xl p-6 shadow-lg">
@@ -224,7 +222,7 @@ export default function ProductDetails() {
                         >
                           <div className="aspect-square bg-gray-100">
                             <img
-                              src={`${import.meta.env.VITE_API_URL}${color.image}`}
+                              src={color.image}
                               alt={color.name}
                               className="w-full h-full object-cover"
                             />
@@ -256,7 +254,7 @@ export default function ProductDetails() {
                         >
                           <div className="aspect-square bg-gray-100">
                             <img
-                              src={`${import.meta.env.VITE_API_URL}${back.image}`}
+                              src={back.image}
                               alt={back.name}
                               className="w-full h-full object-cover"
                             />
@@ -288,7 +286,7 @@ export default function ProductDetails() {
                         >
                           <div className="aspect-square bg-gray-100">
                             <img
-                              src={`${import.meta.env.VITE_API_URL}${wrist.image}`}
+                              src={wrist.image}
                               alt={wrist.name}
                               className="w-full h-full object-cover"
                             />
@@ -312,7 +310,7 @@ export default function ProductDetails() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                    className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-900 font-bold"
+                    className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-900 font-bold"
                   >
                     −
                   </button>
@@ -327,7 +325,7 @@ export default function ProductDetails() {
                   />
                   <button
                     onClick={() => setQuantity((prev) => prev + 1)}
-                    className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-900 font-bold"
+                    className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-900 font-bold"
                   >
                     +
                   </button>
@@ -345,14 +343,6 @@ export default function ProductDetails() {
               >
                 {product.in_stock ? "Add to Cart" : "Out of Stock"}
               </button>
-
-              {addedMessage && (
-                <div className="text-center bg-green-50 border border-green-200 rounded-lg py-2">
-                  <p className="text-sm text-green-700 font-medium">
-                    {addedMessage}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         </div>

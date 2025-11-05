@@ -10,16 +10,27 @@ export default function AllProducts() {
     const confirmDelete = window.confirm("Are you sure you want to delete this product?");
     if (!confirmDelete) return;
 
-    try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/auth/product/${id}`, {
-        withCredentials: true,
-      });
+    const deletePromise = axios.delete(
+      `${import.meta.env.VITE_API_URL}/api/auth/product/${id}`,
+      { withCredentials: true }
+    );
 
-      toast.success("Product deleted successfully!");
-      setProducts((prev) => prev.filter((p) => p.id !== id)); // Remove deleted product from UI
+    toast.promise(
+      deletePromise,
+      {
+        loading: "Deleting product...",
+        success: "✅ Product deleted successfully!",
+        error: "❌ Failed to delete product.",
+      },
+      { position: "top-right" }
+    );
+
+    try {
+      await deletePromise;
+      // Remove product from UI immediately
+      setProducts((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error("❌ Delete error:", err);
-      toast.error("Failed to delete product.");
     }
   };
 
@@ -33,45 +44,60 @@ export default function AllProducts() {
     return <p className="text-center text-gray-600 mt-10">No products found.</p>;
 
   return (
-    <div className="p-6 text-white">
-      <h2 className="text-2xl font-semibold mb-4 text-center">All Products</h2>
+    <div className="p-6 text-gray-900">
+      <h2 className="text-2xl font-semibold mb-6 text-center">All Products</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white p-4 rounded-lg border border-gray-300 shadow hover:shadow-lg transition flex flex-col"
-          >
-            {product.images?.length > 0 && (
-              <img
-                src={`http://localhost:8080${product.images[0]}`}
-                alt={product.title}
-                className="w-full h-48 sm:h-56 md:h-60 lg:h-48 object-cover rounded-md mb-3"
-              />
-            )}
+        {products.map((product) => {
+          // ✅ If images are stored in Cloudinary, they’ll already have HTTPS URLs
+          const firstImage =
+            product.images?.length > 0 ? product.images[0] : null;
 
-            <h3 className="text-lg font-semibold text-gray-800">{product.title}</h3>
-            <p className="text-gray-600 text-sm mt-1 line-clamp-2">
-              {product.description}
-            </p>
-            <p className="text-indigo-600 font-bold mt-3">₹{product.base_price}</p>
+          return (
+            <div
+              key={product.id}
+              className="bg-white p-4 rounded-lg border border-gray-200 shadow hover:shadow-lg transition flex flex-col"
+            >
+              {firstImage ? (
+                <img
+                  src={firstImage}
+                  alt={product.title}
+                  className="w-full h-48 object-cover rounded-md mb-3"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-full h-48 flex items-center justify-center bg-gray-100 text-gray-400 rounded-md mb-3">
+                  No Image
+                </div>
+              )}
 
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Link to={`/adminDashboard/updateProduct/${product.id}`}>
-                <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded w-full sm:w-auto">
-                  Edit
+              <h3 className="text-lg font-semibold text-gray-800">
+                {product.title}
+              </h3>
+              <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                {product.description}
+              </p>
+              <p className="text-indigo-600 font-bold mt-3">
+                ₹{product.base_price}
+              </p>
+
+              <div className="mt-auto pt-4 flex gap-3">
+                <Link to={`/adminDashboard/updateProduct/${product.id}`}>
+                  <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded w-full sm:w-auto transition">
+                    Edit
+                  </button>
+                </Link>
+
+                <button
+                  onClick={() => handleDelete(product.id)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded w-full sm:w-auto transition"
+                >
+                  Delete
                 </button>
-              </Link>
-
-              <button
-                onClick={() => handleDelete(product.id)}
-                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded w-full sm:w-auto"
-              >
-                Delete
-              </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

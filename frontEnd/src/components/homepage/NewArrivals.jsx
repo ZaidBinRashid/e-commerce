@@ -24,7 +24,7 @@ export default function NewArrivals() {
       </div>
     );
 
-  // ✅ Filter products where is_new is true
+  // ✅ Filter new products
   const newArrivals = products.filter((product) => product.is_new === true);
 
   if (newArrivals.length === 0)
@@ -84,21 +84,20 @@ export default function NewArrivals() {
                       </span>
                     </div>
 
+                    {/* Product Image */}
                     <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden flex-shrink-0">
                       {product.images && product.images.length > 0 && (
                         <img
-                          src={
-                            product.images[0].startsWith("http")
-                              ? product.images[0]
-                              : `${import.meta.env.VITE_API_URL}${product.images[0]}`
-                          }
+                          src={product.images[0]} // ✅ Cloudinary URL directly
                           alt={product.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          loading="lazy"
                         />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
 
+                    {/* Product Info */}
                     <div className="p-5 space-y-3 flex flex-col flex-grow">
                       <div className="space-y-2 flex-grow">
                         <h3 className="text-base font-semibold text-gray-900 group-hover:text-amber-600 transition-colors line-clamp-1">

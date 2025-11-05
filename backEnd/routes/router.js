@@ -1,6 +1,7 @@
 import express from "express";
 import { signup, login, profile, logout} from "../controllers/userController.js";
-import { upload, addProduct, getProductById, deleteProduct, allProducts, updateProduct} from "../controllers/productController.js";
+import { addProduct, getProductById, deleteProduct, allProducts, updateProduct} from "../controllers/productController.js";
+import { upload } from "../config/multerCloudinary.js"
 import { addTestimonials, testimonials, deleteTestimonial } from "../controllers/testimonials.js";
 import {authMiddleware, adminMiddleware} from "../middleware/authMiddleware.js";
 

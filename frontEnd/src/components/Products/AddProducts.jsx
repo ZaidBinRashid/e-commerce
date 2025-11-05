@@ -1,6 +1,7 @@
 import { useState } from "react";
 import * as Yup from "yup";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 // ✅ Validation schema
 const ProductSchema = Yup.object().shape({
@@ -17,7 +18,6 @@ const ProductSchema = Yup.object().shape({
 });
 
 export default function AddProducts() {
-  // ✅ Product main info
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -27,16 +27,14 @@ export default function AddProducts() {
     wrist_size: "",
   });
 
-  // ✅ Images & customizations
   const [images, setImages] = useState([]);
   const [colors, setColors] = useState([]);
   const [backs, setBacks] = useState([]);
   const [wrists, setWrists] = useState([]);
-
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // ✅ Handle input change
+  // ✅ Handle basic input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -47,7 +45,7 @@ export default function AddProducts() {
     setImages(Array.from(e.target.files));
   };
 
-  // ✅ Handle dynamic sections
+  // ✅ Dynamic sections
   const addColor = () =>
     setColors([...colors, { name: "", price_adjustment: "", image: null }]);
   const addBack = () =>
@@ -63,7 +61,7 @@ export default function AddProducts() {
     });
   };
 
-  // ✅ Submit form
+  // ✅ Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -81,21 +79,14 @@ export default function AddProducts() {
       images.forEach((img) => formData.append("images", img));
 
       // ✅ Colors, backs, wrists
-      // ✅ 1. Send the JSON data for colors, backs, wrists
       formData.append("colors", JSON.stringify(colors));
       formData.append("backs", JSON.stringify(backs));
       formData.append("wrists", JSON.stringify(wrists));
 
-      // ✅ 2. Send corresponding images in order
-      colors.forEach((c) => {
-        if (c.image) formData.append("colorImages", c.image);
-      });
-      backs.forEach((b) => {
-        if (b.image) formData.append("backImages", b.image);
-      });
-      wrists.forEach((w) => {
-        if (w.image) formData.append("wristImages", w.image);
-      });
+      // ✅ Attach corresponding images
+      colors.forEach((c) => c.image && formData.append("colorImages", c.image));
+      backs.forEach((b) => b.image && formData.append("backImages", b.image));
+      wrists.forEach((w) => w.image && formData.append("wristImages", w.image));
 
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/addProduct`,
@@ -106,7 +97,8 @@ export default function AddProducts() {
         }
       );
 
-      alert("✅ Product added successfully!");
+      toast.success("✅ Product added successfully!");
+
       console.log(res.data);
 
       // ✅ Reset form
@@ -127,9 +119,12 @@ export default function AddProducts() {
         const formErrors = {};
         err.inner.forEach((e) => (formErrors[e.path] = e.message));
         setErrors(formErrors);
+        toast.error("❌ Please fix the highlighted errors.");
+      } else if (err.response?.data?.error) {
+        toast.error(err.response.data.error);
       } else {
         console.error(err);
-        alert("❌ Failed to add product");
+        toast.error("❌ Failed to add product. Try again.");
       }
     } finally {
       setLoading(false);
@@ -137,231 +132,173 @@ export default function AddProducts() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md border border-gray-300"
-    >
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md border border-gray-300">
+      <Toaster position="top-right" reverseOrder={false} />
+
       <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800">
         Add New Product
       </h2>
 
-      {/* Basic Fields */}
-      <input
-        name="title"
-        placeholder="Title"
-        value={form.title}
-        onChange={handleChange}
-        className="w-full border rounded-lg px-3 py-2"
-      />
-      {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Title */}
+        <input
+          name="title"
+          placeholder="Title"
+          value={form.title}
+          onChange={handleChange}
+          className="w-full border rounded-lg px-3 py-2"
+        />
+        {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
 
-      <textarea
-        name="description"
-        placeholder="Short Description"
-        value={form.description}
-        onChange={handleChange}
-        className="w-full border rounded-lg px-3 py-2"
-      />
-      {errors.description && (
-        <p className="text-xs text-red-500">{errors.description}</p>
-      )}
+        {/* Short Description */}
+        <textarea
+          name="description"
+          placeholder="Short Description"
+          value={form.description}
+          onChange={handleChange}
+          className="w-full border rounded-lg px-3 py-2"
+        />
+        {errors.description && (
+          <p className="text-xs text-red-500">{errors.description}</p>
+        )}
 
-      <textarea
-        name="detailed_description"
-        placeholder="Detailed Description"
-        value={form.detailed_description}
-        onChange={handleChange}
-        className="w-full border rounded-lg px-3 py-2"
-        rows="4"
-      />
-      {errors.detailed_description && (
-        <p className="text-xs text-red-500">{errors.detailed_description}</p>
-      )}
+        {/* Detailed Description */}
+        <textarea
+          name="detailed_description"
+          placeholder="Detailed Description"
+          value={form.detailed_description}
+          onChange={handleChange}
+          className="w-full border rounded-lg px-3 py-2"
+          rows="4"
+        />
+        {errors.detailed_description && (
+          <p className="text-xs text-red-500">{errors.detailed_description}</p>
+        )}
 
-      <input
-        type="number"
-        name="base_price"
-        placeholder="Base Price"
-        value={form.base_price}
-        onChange={handleChange}
-        className="w-full border rounded-lg px-3 py-2"
-      />
-      {errors.base_price && (
-        <p className="text-xs text-red-500">{errors.base_price}</p>
-      )}
+        {/* Base Price */}
+        <input
+          type="number"
+          name="base_price"
+          placeholder="Base Price"
+          value={form.base_price}
+          onChange={handleChange}
+          className="w-full border rounded-lg px-3 py-2"
+        />
+        {errors.base_price && (
+          <p className="text-xs text-red-500">{errors.base_price}</p>
+        )}
 
-      <input
-        name="brand"
-        placeholder="Brand"
-        value={form.brand}
-        onChange={handleChange}
-        className="w-full border rounded-lg px-3 py-2"
-      />
-      {errors.brand && <p className="text-xs text-red-500">{errors.brand}</p>}
+        {/* Brand */}
+        <input
+          name="brand"
+          placeholder="Brand"
+          value={form.brand}
+          onChange={handleChange}
+          className="w-full border rounded-lg px-3 py-2"
+        />
+        {errors.brand && <p className="text-xs text-red-500">{errors.brand}</p>}
 
-      <input
-        name="wrist_size"
-        placeholder="Wrist Size (e.g., 18mm, 20mm, 22mm)"
-        value={form.wrist_size}
-        onChange={handleChange}
-        className="w-full border rounded-lg px-3 py-2"
-      />
-      {errors.wrist_size && (
-        <p className="text-xs text-red-500">{errors.wrist_size}</p>
-      )}
+        {/* Wrist Size */}
+        <input
+          name="wrist_size"
+          placeholder="Wrist Size (e.g., 18mm, 20mm, 22mm)"
+          value={form.wrist_size}
+          onChange={handleChange}
+          className="w-full border rounded-lg px-3 py-2"
+        />
+        {errors.wrist_size && (
+          <p className="text-xs text-red-500">{errors.wrist_size}</p>
+        )}
 
-      {/* Images */}
-      <label className="block font-medium text-gray-700">Product Images:</label>
-      <input
-        type="file"
-        multiple
-        onChange={(e) => setImages(Array.from(e.target.files))}
-      />
-      {errors.images && <p className="text-xs text-red-500">{errors.images}</p>}
+        {/* Product Images */}
+        <label className="block font-medium text-gray-700">
+          Product Images:
+        </label>
+        <input type="file" multiple onChange={handleImageChange} />
+        {errors.images && (
+          <p className="text-xs text-red-500">{errors.images}</p>
+        )}
 
-      {/* Colors Section */}
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-2">Colors</h3>
-        {colors.map((color, index) => (
-          <div key={index} className="border p-3 rounded mb-2">
-            <input
-              placeholder="Color Name"
-              value={color.name}
-              onChange={(e) =>
-                handleSubChange(setColors, index, "name", e.target.value)
-              }
-              className="border rounded px-2 py-1 w-full mb-2"
-            />
-            <input
-              type="number"
-              placeholder="Price Adjustment"
-              value={color.price_adjustment}
-              onChange={(e) =>
-                handleSubChange(
-                  setColors,
-                  index,
-                  "price_adjustment",
-                  e.target.value
-                )
-              }
-              className="border rounded px-2 py-1 w-full mb-2"
-            />
-            <input
-              type="file"
-              onChange={(e) =>
-                handleSubChange(setColors, index, "image", e.target.files[0])
-              }
-              className="w-full"
-            />
-          </div>
-        ))}
+        {/* Colors Section */}
+        <Section
+          title="Colors"
+          items={colors}
+          addItem={addColor}
+          handleSubChange={handleSubChange}
+          setter={setColors}
+        />
+
+        {/* Backs Section */}
+        <Section
+          title="Back Types"
+          items={backs}
+          addItem={addBack}
+          handleSubChange={handleSubChange}
+          setter={setBacks}
+        />
+
+        {/* Wrists Section */}
+        <Section
+          title="Wrist Styles"
+          items={wrists}
+          addItem={addWrist}
+          handleSubChange={handleSubChange}
+          setter={setWrists}
+        />
+
+        {/* Submit Button */}
         <button
-          type="button"
-          onClick={addColor}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
+          type="submit"
+          disabled={loading}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium transition mt-6"
         >
-          + Add Color
+          {loading ? "Uploading..." : "Add Product"}
         </button>
-      </div>
+      </form>
+    </div>
+  );
+}
 
-      {/* Backs Section */}
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-2">Back Types</h3>
-        {backs.map((back, index) => (
-          <div key={index} className="border p-3 rounded mb-2">
-            <input
-              placeholder="Back Type Name"
-              value={back.name}
-              onChange={(e) =>
-                handleSubChange(setBacks, index, "name", e.target.value)
-              }
-              className="border rounded px-2 py-1 w-full mb-2"
-            />
-            <input
-              type="number"
-              placeholder="Price Adjustment"
-              value={back.price_adjustment}
-              onChange={(e) =>
-                handleSubChange(
-                  setBacks,
-                  index,
-                  "price_adjustment",
-                  e.target.value
-                )
-              }
-              className="border rounded px-2 py-1 w-full mb-2"
-            />
-            <input
-              type="file"
-              onChange={(e) =>
-                handleSubChange(setBacks, index, "image", e.target.files[0])
-              }
-              className="w-full"
-            />
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={addBack}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
-        >
-          + Add Back Type
-        </button>
-      </div>
-
-      {/* Wrists Section */}
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-2">Wrist Styles</h3>
-        {wrists.map((wrist, index) => (
-          <div key={index} className="border p-3 rounded mb-2">
-            <input
-              placeholder="Wrist Style Name"
-              value={wrist.name}
-              onChange={(e) =>
-                handleSubChange(setWrists, index, "name", e.target.value)
-              }
-              className="border rounded px-2 py-1 w-full mb-2"
-            />
-            <input
-              type="number"
-              placeholder="Price Adjustment"
-              value={wrist.price_adjustment}
-              onChange={(e) =>
-                handleSubChange(
-                  setWrists,
-                  index,
-                  "price_adjustment",
-                  e.target.value
-                )
-              }
-              className="border rounded px-2 py-1 w-full mb-2"
-            />
-            <input
-              type="file"
-              onChange={(e) =>
-                handleSubChange(setWrists, index, "image", e.target.files[0])
-              }
-              className="w-full"
-            />
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={addWrist}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
-        >
-          + Add Wrist Style
-        </button>
-      </div>
-
-      {/* Submit Button */}
+// ✅ Reusable Section Component
+function Section({ title, items, addItem, handleSubChange, setter }) {
+  return (
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      {items.map((item, index) => (
+        <div key={index} className="border p-3 rounded mb-2">
+          <input
+            placeholder={`${title.slice(0, -1)} Name`}
+            value={item.name}
+            onChange={(e) =>
+              handleSubChange(setter, index, "name", e.target.value)
+            }
+            className="border rounded px-2 py-1 w-full mb-2"
+          />
+          <input
+            type="number"
+            placeholder="Price Adjustment"
+            value={item.price_adjustment}
+            onChange={(e) =>
+              handleSubChange(setter, index, "price_adjustment", e.target.value)
+            }
+            className="border rounded px-2 py-1 w-full mb-2"
+          />
+          <input
+            type="file"
+            onChange={(e) =>
+              handleSubChange(setter, index, "image", e.target.files[0])
+            }
+            className="w-full"
+          />
+        </div>
+      ))}
       <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium transition mt-6"
+        type="button"
+        onClick={addItem}
+        className="bg-blue-500 text-white px-3 py-1 rounded"
       >
-        {loading ? "Uploading..." : "Add Product"}
+        + Add {title.slice(0, -1)}
       </button>
-    </form>
+    </div>
   );
 }

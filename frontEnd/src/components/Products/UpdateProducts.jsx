@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import toast from "react-hot-toast";
 
 const ProductSchema = Yup.object().shape({
   title: Yup.string().min(3).max(50),
@@ -34,7 +35,6 @@ export default function UpdateProducts() {
   const [colors, setColors] = useState([]);
   const [back_types, setBacks] = useState([]);
   const [wrists, setWrists] = useState([]);
-
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -44,7 +44,6 @@ export default function UpdateProducts() {
       .get(`${import.meta.env.VITE_API_URL}/api/auth/product/${id}`)
       .then((res) => {
         const data = res.data.product;
-
         setForm({
           title: data.title,
           description: data.description,
@@ -58,7 +57,9 @@ export default function UpdateProducts() {
 
         if (data.images?.length > 0) {
           const fullUrls = data.images.map((img) =>
-            img.startsWith("http") ? img : `${import.meta.env.VITE_API_URL}${img}`
+            img.startsWith("http")
+              ? img
+              : `${import.meta.env.VITE_API_URL}${img}`
           );
           setPreview(fullUrls);
         }
@@ -67,10 +68,13 @@ export default function UpdateProducts() {
         setBacks(data.back_types || []);
         setWrists(data.wrists || []);
       })
-      .catch((err) => console.error("❌ Failed to fetch product:", err));
+      .catch((err) => {
+        console.error("❌ Failed to fetch product:", err);
+        toast.error("Failed to fetch product details");
+      });
   }, [id]);
 
-  // ✅ Input change handler
+  // ✅ Input handler
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -103,7 +107,7 @@ export default function UpdateProducts() {
     });
   };
 
-  // ✅ Submit updates
+  // ✅ Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -119,10 +123,10 @@ export default function UpdateProducts() {
         }
       });
 
-      // ✅ Images
+      // Images
       images.forEach((img) => formData.append("images", img));
 
-      // ✅ Customizations
+      // Customizations
       formData.append("colors", JSON.stringify(colors));
       colors.forEach((c) => {
         if (c.image) formData.append("colorImages", c.image);
@@ -143,8 +147,8 @@ export default function UpdateProducts() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert("✅ Product updated successfully!");
-      navigate("/adminDashboard/allProducts"); // ✅ fixed path
+      toast.success("✅ Product updated successfully!");
+      navigate("/adminDashboard/allProducts");
     } catch (err) {
       if (err.inner) {
         const formErrors = {};
@@ -152,7 +156,7 @@ export default function UpdateProducts() {
         setErrors(formErrors);
       } else {
         console.error(err);
-        alert("❌ Update failed");
+        toast.error("❌ Update failed");
       }
     } finally {
       setLoading(false);
@@ -177,12 +181,16 @@ export default function UpdateProducts() {
       <textarea name="description" value={form.description} onChange={handleChange} placeholder="Short Description" className="w-full border rounded px-3 py-2" />
       <textarea name="detailed_description" value={form.detailed_description} onChange={handleChange} placeholder="Detailed Description" className="w-full border rounded px-3 py-2" />
 
-      {/* ✅ New Arrival Toggle */}
-      <div className="flex items-center gap-2">
-        <input type="checkbox" name="is_new" checked={!!form.is_new} onChange={handleChange} />
-        <span>{form.is_new} Mark as New Arrival</span>
-        <input type="checkbox" name="in_stock" checked={!!form.in_stock} onChange={handleChange} />
-        <span>{form.in_stock} Mark as In Stock</span>
+      {/* ✅ Toggles */}
+      <div className="flex items-center gap-6">
+        <label className="flex items-center gap-2">
+          <input type="checkbox" name="is_new" checked={!!form.is_new} onChange={handleChange} />
+          <span>Mark as New Arrival</span>
+        </label>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" name="in_stock" checked={!!form.in_stock} onChange={handleChange} />
+          <span>Mark as In Stock</span>
+        </label>
       </div>
 
       {/* Product Images */}
@@ -206,42 +214,28 @@ export default function UpdateProducts() {
             <input
               value={color.name}
               placeholder="Color Name"
-              onChange={(e) =>
-                handleSubChange(setColors, index, "name", e.target.value)
-              }
+              onChange={(e) => handleSubChange(setColors, index, "name", e.target.value)}
               className="border rounded px-2 py-1 w-full mb-2"
             />
             <input
               type="number"
               value={color.price_adjustment}
               placeholder="Price Adjustment"
-              onChange={(e) =>
-                handleSubChange(
-                  setColors,
-                  index,
-                  "price_adjustment",
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleSubChange(setColors, index, "price_adjustment", e.target.value)}
               className="border rounded px-2 py-1 w-full mb-2"
             />
             <input
               type="file"
-              onChange={(e) =>
-                handleSubChange(setColors, index, "image", e.target.files[0])
-              }
+              onChange={(e) => handleSubChange(setColors, index, "image", e.target.files[0])}
             />
           </div>
         ))}
-        <button
-          type="button"
-          onClick={addColor}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
-        >
+        <button type="button" onClick={addColor} className="bg-blue-500 text-white px-3 py-1 rounded">
           + Add Color
         </button>
       </div>
-      {/* Backs */}
+
+      {/* Back Types */}
       <div>
         <h3 className="font-semibold mb-2">Back Types</h3>
         {back_types.map((back, index) => (
@@ -249,41 +243,27 @@ export default function UpdateProducts() {
             <input
               value={back.name}
               placeholder="Back Type"
-              onChange={(e) =>
-                handleSubChange(setBacks, index, "name", e.target.value)
-              }
+              onChange={(e) => handleSubChange(setBacks, index, "name", e.target.value)}
               className="border rounded px-2 py-1 w-full mb-2"
             />
             <input
               type="number"
               value={back.price_adjustment}
               placeholder="Price Adjustment"
-              onChange={(e) =>
-                handleSubChange(
-                  setBacks,
-                  index,
-                  "price_adjustment",
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleSubChange(setBacks, index, "price_adjustment", e.target.value)}
               className="border rounded px-2 py-1 w-full mb-2"
             />
             <input
               type="file"
-              onChange={(e) =>
-                handleSubChange(setBacks, index, "image", e.target.files[0])
-              }
+              onChange={(e) => handleSubChange(setBacks, index, "image", e.target.files[0])}
             />
           </div>
         ))}
-        <button
-          type="button"
-          onClick={addBack}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
-        >
+        <button type="button" onClick={addBack} className="bg-blue-500 text-white px-3 py-1 rounded">
           + Add Back Type
         </button>
       </div>
+
       {/* Wrists */}
       <div>
         <h3 className="font-semibold mb-2">Wrist Styles</h3>
@@ -292,43 +272,32 @@ export default function UpdateProducts() {
             <input
               value={wrist.name}
               placeholder="Wrist Style"
-              onChange={(e) =>
-                handleSubChange(setWrists, index, "name", e.target.value)
-              }
+              onChange={(e) => handleSubChange(setWrists, index, "name", e.target.value)}
               className="border rounded px-2 py-1 w-full mb-2"
             />
             <input
               type="number"
               value={wrist.price_adjustment}
               placeholder="Price Adjustment"
-              onChange={(e) =>
-                handleSubChange(
-                  setWrists,
-                  index,
-                  "price_adjustment",
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleSubChange(setWrists, index, "price_adjustment", e.target.value)}
               className="border rounded px-2 py-1 w-full mb-2"
             />
             <input
               type="file"
-              onChange={(e) =>
-                handleSubChange(setWrists, index, "image", e.target.files[0])
-              }
+              onChange={(e) => handleSubChange(setWrists, index, "image", e.target.files[0])}
             />
           </div>
         ))}
-        <button
-          type="button"
-          onClick={addWrist}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
-        >
+        <button type="button" onClick={addWrist} className="bg-blue-500 text-white px-3 py-1 rounded">
           + Add Wrist Style
         </button>
       </div>
 
-      <button type="submit" disabled={loading} className="w-full bg-indigo-600 text-white py-2 rounded mt-4">
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-indigo-600 text-white py-2 rounded mt-4"
+      >
         {loading ? "Updating..." : "Update Product"}
       </button>
     </form>
