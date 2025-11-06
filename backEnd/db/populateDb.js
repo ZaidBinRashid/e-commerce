@@ -30,7 +30,8 @@ const SQL = `
     CREATE TABLE IF NOT EXISTS product_images (
      id SERIAL PRIMARY KEY,
      product_id INT REFERENCES products(id) ON DELETE CASCADE,
-     image_url TEXT NOT NULL
+     image_url TEXT NOT NULL,
+     public_id TEXT,
     );
 
     CREATE TABLE IF NOT EXISTS product_colors (
@@ -38,6 +39,7 @@ const SQL = `
       product_id INT REFERENCES products(id) ON DELETE CASCADE,
       color_name VARCHAR(50) NOT NULL,
       color_image_url TEXT NOT NULL,
+      public_id TEXT,
       price_adjustment NUMERIC(10, 2) DEFAULT 0
     );
 
@@ -45,6 +47,7 @@ const SQL = `
       id SERIAL PRIMARY KEY,
       product_id INT REFERENCES products(id) ON DELETE CASCADE,
       type_name VARCHAR(50) NOT NULL,
+      public_id TEXT,
       image_url TEXT,
       price_adjustment NUMERIC(10, 2) DEFAULT 0
     );
@@ -54,6 +57,7 @@ const SQL = `
       product_id INT REFERENCES products(id) ON DELETE CASCADE,
       wrist_style VARCHAR(50) NOT NULL,
       image_url TEXT,
+      public_id TEXT,
       price_adjustment NUMERIC(10, 2) DEFAULT 0
     );
 

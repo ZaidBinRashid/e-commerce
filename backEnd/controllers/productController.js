@@ -33,12 +33,13 @@ export const addProduct = async (req, res) => {
     const product = productResult.rows[0];
     const productId = product.id;
 
-    // 2️⃣ Upload main product images (Cloudinary returns .path as the image URL)
+    // 2️⃣ Main product images
     if (req.files?.images) {
       for (const file of req.files.images) {
         await client.query(
-          `INSERT INTO product_images (product_id, image_url) VALUES ($1, $2)`,
-          [productId, file.path]
+          `INSERT INTO product_images (product_id, image_url, public_id)
+           VALUES ($1, $2, $3)`,
+          [productId, file.path, file.filename]
         );
       }
     }
@@ -47,13 +48,17 @@ export const addProduct = async (req, res) => {
     if (colors) {
       const colorArray = JSON.parse(colors);
       const colorImages = req.files?.colorImages || [];
+
       for (let i = 0; i < colorArray.length; i++) {
         const color = colorArray[i];
-        const imageFile = colorImages[i]?.path || color.image || null;
+        const img = colorImages[i]; // ✅ get the actual image file for this color
+        const imageFile = img?.path || color.image || null;
+        const publicId = img?.filename || null;
+
         await client.query(
-          `INSERT INTO product_colors (product_id, color_name, color_image_url, price_adjustment)
-           VALUES ($1, $2, $3, $4)`,
-          [productId, color.name, imageFile, color.price_adjustment || 0]
+          `INSERT INTO product_colors (product_id, color_name, color_image_url, price_adjustment, public_id)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [productId, color.name, imageFile, color.price_adjustment || 0, publicId]
         );
       }
     }
@@ -62,13 +67,17 @@ export const addProduct = async (req, res) => {
     if (backs) {
       const backArray = JSON.parse(backs);
       const backImages = req.files?.backImages || [];
+
       for (let i = 0; i < backArray.length; i++) {
         const back = backArray[i];
-        const imageFile = backImages[i]?.path || back.image || null;
+        const img = backImages[i];
+        const imageFile = img?.path || back.image || null;
+        const publicId = img?.filename || null;
+
         await client.query(
-          `INSERT INTO product_back_types (product_id, type_name, image_url, price_adjustment)
-           VALUES ($1, $2, $3, $4)`,
-          [productId, back.name, imageFile, back.price_adjustment || 0]
+          `INSERT INTO product_back_types (product_id, type_name, image_url, price_adjustment, public_id)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [productId, back.name, imageFile, back.price_adjustment || 0, publicId]
         );
       }
     }
@@ -77,13 +86,17 @@ export const addProduct = async (req, res) => {
     if (wrists) {
       const wristArray = JSON.parse(wrists);
       const wristImages = req.files?.wristImages || [];
+
       for (let i = 0; i < wristArray.length; i++) {
         const wrist = wristArray[i];
-        const imageFile = wristImages[i]?.path || wrist.image || null;
+        const img = wristImages[i];
+        const imageFile = img?.path || wrist.image || null;
+        const publicId = img?.filename || null;
+
         await client.query(
-          `INSERT INTO product_wrists (product_id, wrist_style, image_url, price_adjustment)
-           VALUES ($1, $2, $3, $4)`,
-          [productId, wrist.name, imageFile, wrist.price_adjustment || 0]
+          `INSERT INTO product_wrists (product_id, wrist_style, image_url, price_adjustment, public_id)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [productId, wrist.name, imageFile, wrist.price_adjustment || 0, publicId]
         );
       }
     }
@@ -174,48 +187,47 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    // 2️⃣ Collect all image URLs from related tables
+    // 2️⃣ Collect all Cloudinary public_ids from related tables
     const imageTables = [
-      { table: "product_images", column: "image_url" },
-      { table: "product_colors", column: "color_image_url" },
-      { table: "product_back_types", column: "image_url" },
-      { table: "product_wrists", column: "image_url" },
+      { table: "product_images", column: "public_id" },
+      { table: "product_colors", column: "public_id" },
+      { table: "product_back_types", column: "public_id" },
+      { table: "product_wrists", column: "public_id" },
     ];
 
-    let allImageUrls = [];
+    let allPublicIds = [];
 
     for (const { table, column } of imageTables) {
       const result = await client.query(
         `SELECT ${column} FROM ${table} WHERE product_id = $1`,
         [id]
       );
-      allImageUrls.push(...result.rows.map((r) => r[column]));
+
+      const ids = result.rows
+        .map((r) => r[column])
+        .filter((pid) => pid && pid.trim() !== "");
+
+      allPublicIds.push(...ids);
     }
 
-    // 3️⃣ Delete from Cloudinary
-    for (const url of allImageUrls) {
-      if (!url) continue;
+    console.log("🧾 Public IDs to delete:", allPublicIds);
 
+    // 3️⃣ Delete images from Cloudinary (in batches)
+    if (allPublicIds.length > 0) {
       try {
-        // Extract everything between /upload/ and the file extension
-        const match = url.match(/\/upload\/(?:v\d+\/)?([^\.]+)\.[a-zA-Z]+$/);
-
-        if (match && match[1]) {
-          const publicId = match[1];
-          const result = await cloudinary.uploader.destroy(publicId);
-          console.log("🗑️ Deleted from Cloudinary:", publicId, result);
-        } else {
-          console.warn("⚠️ Could not extract publicId for:", url);
-        }
-      } catch (err) {
-        console.warn("⚠️ Cloudinary deletion failed for:", url, err.message);
+        const cloudinaryResponse = await cloudinary.api.delete_resources(allPublicIds);
+        console.log("🗑️ Cloudinary delete response:", cloudinaryResponse);
+      } catch (cloudErr) {
+        console.warn("⚠️ Cloudinary deletion failed:", cloudErr.message);
       }
     }
 
-    // 4️⃣ Delete product from DB (cascade deletes related rows)
+    // 4️⃣ Delete the product from DB (CASCADE should remove related records)
     await client.query("DELETE FROM products WHERE id = $1", [id]);
 
-    res.json({ message: "✅ Product deleted from database and Cloudinary" });
+    res.json({
+      message: "✅ Product and all associated images deleted successfully",
+    });
   } catch (err) {
     console.error("❌ Delete Product Error:", err);
     res.status(500).json({ error: "Server error" });
@@ -225,10 +237,11 @@ export const deleteProduct = async (req, res) => {
 };
 
 
+
 // ----------------- Update Product (Admin only)-----------------
 export const updateProduct = async (req, res) => {
   const client = await pool.connect();
-  const uploadedImages = []; // Track uploads for rollback
+  const uploadedImages = []; // Track new uploads for rollback
 
   try {
     const { id } = req.params;
@@ -256,7 +269,35 @@ export const updateProduct = async (req, res) => {
 
     await client.query("BEGIN");
 
-    // 2️⃣ Update main product
+    // Helper: delete old Cloudinary images by product_id
+    const deleteOldImages = async (table, column) => {
+      const result = await client.query(
+        `SELECT public_id FROM ${table} WHERE product_id = $1`,
+        [id]
+      );
+      const publicIds = result.rows.map((r) => r.public_id).filter(Boolean);
+
+      if (publicIds.length > 0) {
+        try {
+          await cloudinary.api.delete_resources(publicIds);
+          console.log(`🗑️ Deleted old ${table} images from Cloudinary`);
+        } catch (err) {
+          console.warn(`⚠️ Failed deleting from Cloudinary (${table}):`, err.message);
+        }
+      }
+    };
+
+    // Helper: upload image to Cloudinary
+    const uploadToCloudinary = async (file, folder) => {
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder,
+        public_id: `product-${id}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      });
+      uploadedImages.push(result.public_id); // track for rollback
+      return { url: result.secure_url, publicId: result.public_id };
+    };
+
+    // 2️⃣ Update main product fields
     const updatedProduct = await client.query(
       `UPDATE products
        SET title = COALESCE($1, title),
@@ -282,24 +323,17 @@ export const updateProduct = async (req, res) => {
       ]
     );
 
-    // Helper to upload safely
-    const uploadToCloudinary = async (file, folder) => {
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder,
-        public_id: `product-${id}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      });
-      uploadedImages.push(result.public_id);
-      return result.secure_url;
-    };
-
     // 3️⃣ Replace product images
     if (req.files?.images?.length > 0) {
+      await deleteOldImages("product_images", "image_url");
       await client.query("DELETE FROM product_images WHERE product_id = $1", [id]);
+
       for (const file of req.files.images) {
-        const url = await uploadToCloudinary(file, "watch_catalog/products");
+        const { url, publicId } = await uploadToCloudinary(file, "watch_catalog");
         await client.query(
-          `INSERT INTO product_images (product_id, image_url) VALUES ($1, $2)`,
-          [id, url]
+          `INSERT INTO product_images (product_id, image_url, public_id)
+           VALUES ($1, $2, $3)`,
+          [id, url, publicId]
         );
       }
     }
@@ -309,18 +343,24 @@ export const updateProduct = async (req, res) => {
       const colorArray = JSON.parse(colors);
       const colorImages = req.files?.colorImages || [];
 
+      await deleteOldImages("product_colors", "color_image_url");
       await client.query("DELETE FROM product_colors WHERE product_id = $1", [id]);
 
       for (let i = 0; i < colorArray.length; i++) {
         const c = colorArray[i];
-        const url = colorImages[i]
-          ? await uploadToCloudinary(colorImages[i], "watch_catalog/colors")
-          : c.image || null;
+        let url = c.image || null;
+        let publicId = null;
+
+        if (colorImages[i]) {
+          const upload = await uploadToCloudinary(colorImages[i], "watch_catalog");
+          url = upload.url;
+          publicId = upload.publicId;
+        }
 
         await client.query(
-          `INSERT INTO product_colors (product_id, color_name, color_image_url, price_adjustment)
-           VALUES ($1, $2, $3, $4)`,
-          [id, c.name, url, c.price_adjustment || 0]
+          `INSERT INTO product_colors (product_id, color_name, color_image_url, price_adjustment, public_id)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [id, c.name, url, c.price_adjustment || 0, publicId]
         );
       }
     }
@@ -330,18 +370,24 @@ export const updateProduct = async (req, res) => {
       const backArray = JSON.parse(backs);
       const backImages = req.files?.backImages || [];
 
+      await deleteOldImages("product_back_types", "image_url");
       await client.query("DELETE FROM product_back_types WHERE product_id = $1", [id]);
 
       for (let i = 0; i < backArray.length; i++) {
         const b = backArray[i];
-        const url = backImages[i]
-          ? await uploadToCloudinary(backImages[i], "watch_catalog/backs")
-          : b.image || null;
+        let url = b.image || null;
+        let publicId = null;
+
+        if (backImages[i]) {
+          const upload = await uploadToCloudinary(backImages[i], "watch_catalog");
+          url = upload.url;
+          publicId = upload.publicId;
+        }
 
         await client.query(
-          `INSERT INTO product_back_types (product_id, type_name, image_url, price_adjustment)
-           VALUES ($1, $2, $3, $4)`,
-          [id, b.name, url, b.price_adjustment || 0]
+          `INSERT INTO product_back_types (product_id, type_name, image_url, price_adjustment, public_id)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [id, b.name, url, b.price_adjustment || 0, publicId]
         );
       }
     }
@@ -351,18 +397,24 @@ export const updateProduct = async (req, res) => {
       const wristArray = JSON.parse(wrists);
       const wristImages = req.files?.wristImages || [];
 
+      await deleteOldImages("product_wrists", "image_url");
       await client.query("DELETE FROM product_wrists WHERE product_id = $1", [id]);
 
       for (let i = 0; i < wristArray.length; i++) {
         const w = wristArray[i];
-        const url = wristImages[i]
-          ? await uploadToCloudinary(wristImages[i], "watch_catalog/wrists")
-          : w.image || null;
+        let url = w.image || null;
+        let publicId = null;
+
+        if (wristImages[i]) {
+          const upload = await uploadToCloudinary(wristImages[i], "watch_catalog");
+          url = upload.url;
+          publicId = upload.publicId;
+        }
 
         await client.query(
-          `INSERT INTO product_wrists (product_id, wrist_style, image_url, price_adjustment)
-           VALUES ($1, $2, $3, $4)`,
-          [id, w.name, url, w.price_adjustment || 0]
+          `INSERT INTO product_wrists (product_id, wrist_style, image_url, price_adjustment, public_id)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [id, w.name, url, w.price_adjustment || 0, publicId]
         );
       }
     }
@@ -376,12 +428,12 @@ export const updateProduct = async (req, res) => {
   } catch (err) {
     await client.query("ROLLBACK");
 
-    // ❌ Rollback Cloudinary uploads
+    // ❌ Rollback newly uploaded Cloudinary images
     for (const publicId of uploadedImages) {
       try {
         await cloudinary.uploader.destroy(publicId);
         console.log("🗑️ Rolled back Cloudinary upload:", publicId);
-      } catch (error) {
+      } catch {
         console.warn("⚠️ Failed to clean Cloudinary image:", publicId);
       }
     }
