@@ -31,7 +31,7 @@ const SQL = `
      id SERIAL PRIMARY KEY,
      product_id INT REFERENCES products(id) ON DELETE CASCADE,
      image_url TEXT NOT NULL,
-     public_id TEXT,
+     public_id TEXT
     );
 
     CREATE TABLE IF NOT EXISTS product_colors (
