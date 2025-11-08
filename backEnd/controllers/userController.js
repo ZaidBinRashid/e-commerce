@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
 import pool from "../db/pool.js";
+
 
 // Import the secret key for signing JWT tokens from environment variables.
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -69,7 +69,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      { expiresIn: process.env.JWT_EXPIRES_IN}
     );
 
     // Send the JWT to the user's browser as a cookie for authentication.
