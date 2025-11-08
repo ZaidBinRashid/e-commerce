@@ -87,13 +87,35 @@ export default function ProductDetails() {
 
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
+    // 🧠 Filter out null, undefined, or empty customization values
+    const filteredOptions = Object.fromEntries(
+      Object.entries(selectedOptions || {}).filter(
+        ([, value]) => value !== null && value !== "" && value !== undefined
+      )
+    );
+
+    const hasCustomizations =
+      product.customizations && Object.keys(product.customizations).length > 0;
+
+    const hasSelectedOptions =
+      filteredOptions && Object.keys(filteredOptions).length > 0;
+
+    // 🛑 If product has customization options but user didn’t pick any
+    if (hasCustomizations && !hasSelectedOptions) {
+      toast.error(
+        "⚠️ Please select customization options before adding to cart!"
+      );
+      return;
+    }
+
+    // ✅ Build clean cart item
     const newItem = {
-      cartItemId: generateCartItemId(product, selectedOptions),
+      cartItemId: generateCartItemId(product, filteredOptions),
       id: product.id,
       title: product.title,
       base_price: product.base_price,
       total_price: totalPrice,
-      selectedOptions,
+      selectedOptions: filteredOptions,
       image: selectedImage || "",
       quantity,
     };
@@ -186,11 +208,15 @@ export default function ProductDetails() {
               </p>
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-700">
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-400 mb-1">Brand</p>
+                  <p className="text-xs uppercase tracking-wider text-slate-400 mb-1">
+                    Brand
+                  </p>
                   <p className="text-white font-medium">{product.brand}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-400 mb-1">Wrist Size</p>
+                  <p className="text-xs uppercase tracking-wider text-slate-400 mb-1">
+                    Wrist Size
+                  </p>
                   <p className="text-white font-medium">{product.wrist_size}</p>
                 </div>
               </div>
@@ -228,8 +254,12 @@ export default function ProductDetails() {
                             />
                           </div>
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                            <p className="text-xs font-medium text-white">{color.name}</p>
-                            <p className="text-xs text-amber-300">+₹{color.price_adjustment}</p>
+                            <p className="text-xs font-medium text-white">
+                              {color.name}
+                            </p>
+                            <p className="text-xs text-amber-300">
+                              +₹{color.price_adjustment}
+                            </p>
                           </div>
                         </button>
                       ))}
@@ -240,7 +270,9 @@ export default function ProductDetails() {
                 {/* Back Types */}
                 {product.back_types?.length > 0 && (
                   <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-gray-900">Back Type</h3>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Back Type
+                    </h3>
                     <div className="grid grid-cols-3 gap-3">
                       {product.back_types.map((back) => (
                         <button
@@ -260,8 +292,12 @@ export default function ProductDetails() {
                             />
                           </div>
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                            <p className="text-xs font-medium text-white">{back.name}</p>
-                            <p className="text-xs text-amber-300">+₹{back.price_adjustment}</p>
+                            <p className="text-xs font-medium text-white">
+                              {back.name}
+                            </p>
+                            <p className="text-xs text-amber-300">
+                              +₹{back.price_adjustment}
+                            </p>
                           </div>
                         </button>
                       ))}
@@ -272,7 +308,9 @@ export default function ProductDetails() {
                 {/* Wrists */}
                 {product.wrists?.length > 0 && (
                   <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-gray-900">Wrist Style</h3>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Wrist Style
+                    </h3>
                     <div className="grid grid-cols-3 gap-3">
                       {product.wrists.map((wrist) => (
                         <button
@@ -292,8 +330,12 @@ export default function ProductDetails() {
                             />
                           </div>
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                            <p className="text-xs font-medium text-white">{wrist.name}</p>
-                            <p className="text-xs text-amber-300">+₹{wrist.price_adjustment}</p>
+                            <p className="text-xs font-medium text-white">
+                              {wrist.name}
+                            </p>
+                            <p className="text-xs text-amber-300">
+                              +₹{wrist.price_adjustment}
+                            </p>
                           </div>
                         </button>
                       ))}
@@ -306,7 +348,9 @@ export default function ProductDetails() {
             {/* Quantity & Add to Cart */}
             <div className="bg-white rounded-2xl p-6 shadow-lg space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Quantity</span>
+                <span className="text-sm font-medium text-gray-600">
+                  Quantity
+                </span>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}

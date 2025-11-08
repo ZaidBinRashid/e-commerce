@@ -89,7 +89,39 @@ export default function Checkout() {
           contact: shippingInfo.phone,
         },
         handler: async function (response) {
+          const verifyingPopup = document.createElement("div");
+          verifyingPopup.className =
+            "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4";
+          verifyingPopup.innerHTML = `
+    <div class="bg-white rounded-2xl p-8 shadow-2xl text-center max-w-md w-full animate-fadeIn">
+      <div class="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <h2 class="text-xl font-light text-gray-900">Verifying payment...</h2>
+      <p class="text-gray-500 text-sm mt-2">Please wait a moment</p>
+    </div>
+  `;
+          document.body.appendChild(verifyingPopup);
+
+          // 🧩 Step 2: Add fadeIn + spin animation style
+          const style = document.createElement("style");
+          style.innerHTML = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+  `;
+          document.head.appendChild(style);
+
           try {
+            // ⚙️ Step 3: Verify payment with backend
             const verifyRes = await axios.post(
               `${import.meta.env.VITE_API_URL}/api/payment/verify`,
               {
@@ -98,6 +130,8 @@ export default function Checkout() {
                 razorpay_signature: response.razorpay_signature,
               }
             );
+
+            verifyingPopup.remove();
 
             if (verifyRes.data.success) {
               localStorage.removeItem("cart");
@@ -324,8 +358,8 @@ export default function Checkout() {
               <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
                 <p className="text-sm text-amber-800">
                   <span className="font-medium">Almost there!</span> Add ₹
-                  {(FREE_SHIPPING_THRESHOLD - subtotal).toLocaleString()} more to
-                  get free shipping.
+                  {(FREE_SHIPPING_THRESHOLD - subtotal).toLocaleString()} more
+                  to get free shipping.
                 </p>
               </div>
             )}
@@ -368,7 +402,10 @@ export default function Checkout() {
                       </p>
                     </div>
                     <p className="text-sm text-white flex-shrink-0">
-                      ₹{((item.price ?? item.total_price ?? 0) * item.quantity).toLocaleString()}
+                      ₹
+                      {(
+                        (item.price ?? item.total_price ?? 0) * item.quantity
+                      ).toLocaleString()}
                     </p>
                   </div>
                 ))}
@@ -381,7 +418,9 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between text-slate-300">
                   <span>Shipping</span>
-                  <span className={shippingCharge === 0 ? "text-green-400" : ""}>
+                  <span
+                    className={shippingCharge === 0 ? "text-green-400" : ""}
+                  >
                     {shippingCharge === 0 ? "FREE" : `₹${shippingCharge}`}
                   </span>
                 </div>

@@ -15,7 +15,7 @@ createRoot(document.getElementById("root")).render(
       <ProductsProvider>
         <RouterProvider router={router} />
         <Toaster
-          position="top-right" // you can also use "bottom-center", "top-center", etc.
+          position="top-center" // you can also use "bottom-center", "top-center", etc.
           toastOptions={{
             success: {
               duration: 3000,

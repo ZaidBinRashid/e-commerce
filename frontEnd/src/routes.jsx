@@ -17,7 +17,7 @@ import Analytics from "./components/Products/Analytics";
 import Brands from "./components/homepage/Brands";
 import Testimonials from "./components/Testimonials/Testimonials";
 import AddTestimonials from "./components/Testimonials/AddTestimonials";
-import DeleteTestimonials from "./components/Testimonials/DeleteTestimonials";
+import AllTestimonials from "./components/Testimonials/AllTestimonials";
 import UpdateProducts from "./components/Products/UpdateProducts";
 import ProductDetails from "./components/Products/ProductDetails";
 import CheckOut from "./components/CheckOut/CheckOut";
@@ -89,7 +89,7 @@ const routes = [
           { path: "updateProduct/:id", element: <UpdateProducts /> },
           { path: "analytics", element: <Analytics /> },
           { path: "addTestimonials", element: <AddTestimonials /> },
-          { path: "deleteTestimonials", element: <DeleteTestimonials /> },
+          { path: "allTestimonials", element: <AllTestimonials /> },
         ],
       },
     ],
