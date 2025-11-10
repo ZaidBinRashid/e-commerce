@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 
 export default function About() {
@@ -7,7 +6,7 @@ export default function About() {
       {/* Hero Section */}
       <section className="relative w-full h-[60vh] flex items-center justify-center bg-cover bg-center"
         style={{
-          backgroundImage: `url('./watches/watch3.jpg')`,
+          backgroundImage: `url('./watches/watch3.jpeg')`,
         }}>
         <div className="absolute inset-0 bg-black/50"></div>
         <motion.div
@@ -29,7 +28,7 @@ export default function About() {
       <section className="py-16 px-6 md:px-20 bg-white">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10">
           <motion.img
-            src="./watches/watch2.jpg"
+            src="./watches/watch2.jpeg"
             alt="Our Story"
             className="rounded-2xl shadow-lg w-full md:w-1/2 object-cover"
             initial={{ opacity: 0, x: -60 }}
