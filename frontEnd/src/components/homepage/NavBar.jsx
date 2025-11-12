@@ -57,7 +57,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <img
-              src="/icons/logo1.png"
+              src="icons/logo.png"
               alt="Heritage Watches Co"
               className="w-16 h-16 rounded-full transition-transform duration-300 group-hover:scale-105"
             />

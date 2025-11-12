@@ -10,8 +10,6 @@ import { fileURLToPath } from "url";
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Creating an App.
 const app = express();
@@ -20,7 +18,6 @@ app.use(express.json())
 app.use(cookieParser());
 app.use(cors({ origin:process.env.CORS_ORIGIN,credentials: true }));
 app.use(bodyParser.json({ limit: "10mb" }));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/payment",paymentRoutes);

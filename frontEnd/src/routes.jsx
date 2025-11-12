@@ -20,7 +20,6 @@ import AllTestimonials from "./components/Testimonials/AllTestimonials";
 import UpdateProducts from "./components/Products/UpdateProducts";
 import ProductDetails from "./components/Products/ProductDetails";
 import CheckOut from "./components/CheckOut/CheckOut";
-import BentoHero from "./components/UI/BentoGrid"
 import FloatingHero from "./components/UI/FloatingHero";
 
 
@@ -35,7 +34,6 @@ const routes = [
         index: true,
         element: (
           <>
-            {/* <BentoHero/>, */}
             <FloatingHero />
             <NewArrivals />,
             <Brands />,

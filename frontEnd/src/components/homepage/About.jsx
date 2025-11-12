@@ -1,141 +1,244 @@
 import { motion } from "framer-motion";
+import { HiClock, HiSparkles, HiHeart, HiShieldCheck } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
 export default function About() {
+  const values = [
+    {
+      icon: HiClock,
+      title: "Timeless Craftsmanship",
+      description: "Each timepiece is crafted with precision and attention to detail",
+    },
+    {
+      icon: HiSparkles,
+      title: "Premium Quality",
+      description: "Only the finest materials and components in every watch",
+    },
+    {
+      icon: HiHeart,
+      title: "Customer First",
+      description: "Your satisfaction and trust are our top priorities",
+    },
+    {
+      icon: HiShieldCheck,
+      title: "Authenticity Guaranteed",
+      description: "100% genuine products with complete authenticity certificates",
+    },
+  ];
+
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       {/* Hero Section */}
-      <section className="relative w-full h-[60vh] flex items-center justify-center bg-cover bg-center"
-        style={{
-          backgroundImage: `url('./watches/watch3.jpeg')`,
-        }}>
-        <div className="absolute inset-0 bg-black/50"></div>
+      <section className="relative w-full h-[70vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800">
+          <img
+            src="./watches/watch3.jpeg"
+            alt="Heritage Watches"
+            className="w-full h-full object-cover opacity-30"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="relative z-10 text-center text-white px-4"
+          transition={{ duration: 0.8 }}
+          className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto"
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            About <span className="text-indigo-400">Our Brand</span>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="inline-flex items-center gap-2 bg-amber-400/20 backdrop-blur-md border border-amber-400/30 text-amber-300 px-5 py-2.5 rounded-full text-sm font-medium mb-6"
+          >
+            <HiSparkles className="w-5 h-5" />
+            Established 2020
+          </motion.div>
+
+          <h1 className="text-5xl md:text-7xl font-light mb-6 leading-tight">
+            Our Story
           </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto">
-            Discover our story, mission, and the passionate team behind our journey.
+          <p className="text-xl md:text-2xl text-slate-300 font-light max-w-3xl mx-auto leading-relaxed">
+            Where tradition meets innovation in the art of timekeeping
           </p>
         </motion.div>
       </section>
 
       {/* Brand Story */}
-      <section className="py-16 px-6 md:px-20 bg-white">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10">
-          <motion.img
-            src="./watches/watch2.jpeg"
-            alt="Our Story"
-            className="rounded-2xl shadow-lg w-full md:w-1/2 object-cover"
-            initial={{ opacity: 0, x: -60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-          />
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="order-2 lg:order-1"
+            >
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <img
+                  src="./watches/watch2.jpeg"
+                  alt="Our Heritage"
+                  className="w-full h-[500px] object-cover"
+                />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="order-1 lg:order-2"
+            >
+              <h2 className="text-4xl lg:text-5xl font-light text-gray-900 mb-6">
+                Heritage Watches Co
+              </h2>
+              <div className="space-y-4 text-gray-600 leading-relaxed">
+                <p className="text-lg">
+                  Founded with a vision to bring timeless elegance to every wrist,
+                  Heritage Watches Co has become synonymous with quality, precision,
+                  and sophisticated design.
+                </p>
+                <p className="text-lg">
+                  Our journey began with a simple belief: a watch is more than just
+                  a timepiece — it's a statement of character, a symbol of achievement,
+                  and a companion through life's moments.
+                </p>
+                <p className="text-lg">
+                  Every watch in our collection is carefully curated from the world's
+                  finest watchmakers, ensuring that each piece meets our exacting
+                  standards of excellence.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Values Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            className="md:w-1/2"
-            initial={{ opacity: 0, x: 60 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.8 }}
+            className="text-center mb-16"
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Story</h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              We started with a simple idea — to create quality products that inspire confidence and bring joy.
-              From humble beginnings, our passion for design, craftsmanship, and customer satisfaction
-              has driven us to where we are today.
-            </p>
-            <p className="text-gray-600 leading-relaxed">
-              Every product is thoughtfully crafted, ensuring it not only meets but exceeds your expectations.
-              We’re not just building a brand — we’re building a community.
+            <h2 className="text-4xl lg:text-5xl font-light text-gray-900 mb-4">
+              Our Values
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              The principles that guide everything we do
             </p>
           </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {values.map((value, index) => {
+              const Icon = value.icon;
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-shadow"
+                >
+                  <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center mb-4">
+                    <Icon className="w-7 h-7 text-slate-900" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {value.title}
+                  </h3>
+                  <p className="text-gray-600">{value.description}</p>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* Mission Section */}
-      <section className="py-20 bg-slate-800 text-white text-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="max-w-4xl mx-auto"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Mission</h2>
-          <p className="text-lg leading-relaxed mb-4">
-            To deliver high-quality, sustainable products that make everyday life better — while empowering communities and caring for our planet.
-          </p>
-          <p className="text-lg leading-relaxed">
-            We believe in transparency, innovation, and authenticity. Every purchase helps us move closer to a greener, fairer future.
-          </p>
-        </motion.div>
+      <section className="py-20 bg-gradient-to-br from-slate-800 to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <h2 className="text-4xl lg:text-5xl font-light text-white mb-8">
+              Our Mission
+            </h2>
+            <div className="max-w-4xl mx-auto space-y-6">
+              <p className="text-xl text-slate-300 leading-relaxed">
+                To provide discerning customers with access to the world's finest
+                timepieces, combining heritage craftsmanship with modern innovation.
+              </p>
+              <p className="text-xl text-slate-300 leading-relaxed">
+                We believe every watch tells a story, and we're committed to helping
+                you find the perfect piece that resonates with your personal journey.
+              </p>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <p className="text-5xl font-light text-white mb-2">500+</p>
+                <p className="text-slate-300">Premium Timepieces</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <p className="text-5xl font-light text-white mb-2">50+</p>
+                <p className="text-slate-300">Luxury Brands</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <p className="text-5xl font-light text-white mb-2">10K+</p>
+                <p className="text-slate-300">Happy Customers</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
-      {/* Team Section */}
-      {/* <section className="py-16 px-6 md:px-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-800 mb-12">Meet Our Team</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-            {[
-              {
-                name: "David Smith",
-                role: "Founder & CEO",
-                img: "https://randomuser.me/api/portraits/men/22.jpg",
-              },
-              {
-                name: "Sophia Lee",
-                role: "Creative Director",
-                img: "https://randomuser.me/api/portraits/women/45.jpg",
-              },
-              {
-                name: "Liam Johnson",
-                role: "Product Designer",
-                img: "https://randomuser.me/api/portraits/men/76.jpg",
-              },
-            ].map((member, idx) => (
-              <motion.div
-                key={idx}
-                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.2 }}
-              >
-                <img
-                  src={member.img}
-                  alt={member.name}
-                  className="w-24 h-24 rounded-full mx-auto object-cover mb-4"
-                />
-                <h3 className="text-lg font-semibold text-gray-800">{member.name}</h3>
-                <p className="text-gray-500">{member.role}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
       {/* CTA Section */}
-      <section className="py-20 bg-slate-700 text-white text-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Join Our Journey
-          </h2>
-          <p className="text-lg max-w-2xl mx-auto mb-8">
-            Be part of our growing community and experience the passion, creativity,
-            and care we put into everything we do.
-          </p>
-          <a
-            href="/shop"
-            className="inline-block bg-white text-slate-700 font-semibold px-8 py-3 rounded-full shadow hover:bg-gray-200 transition"
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
-            Explore Our Collection
-          </a>
-        </motion.div>
+            <h2 className="text-4xl lg:text-5xl font-light text-gray-900 mb-6">
+              Find Your Perfect Timepiece
+            </h2>
+            <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+              Explore our curated collection and discover watches that define
+              elegance, precision, and timeless style.
+            </p>
+            <Link to="/shop">
+              <button className="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-semibold px-10 py-4 rounded-full hover:from-amber-500 hover:to-amber-600 transition-all shadow-lg hover:shadow-xl inline-flex items-center gap-2">
+                Explore Collection
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </button>
+            </Link>
+          </motion.div>
+        </div>
       </section>
     </div>
   );

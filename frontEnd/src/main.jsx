@@ -7,7 +7,9 @@ import routes from "./routes";
 import "./main.css";
 import { Toaster } from "react-hot-toast";
 
-const router = createBrowserRouter(routes);
+const router = createBrowserRouter(routes, {
+  basename: "/e-commerce",
+});
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
